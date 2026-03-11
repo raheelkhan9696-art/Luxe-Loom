@@ -84,7 +84,7 @@ const HomePage = () => {
               </button>
               
            <Link to="/about">
-              <button className="px-10 py-4 border border-zinc-700 text-white text-[10px] tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all duration-300">
+              <button className="px-10 py-4 xs:py-10 border border-zinc-700 text-white text-[10px] tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all duration-300">
                 Our Story
               </button>
            </Link>
