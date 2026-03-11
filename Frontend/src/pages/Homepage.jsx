@@ -4,6 +4,8 @@ import watchhero from "../assets/watchheros.png";
 
 import Navbar from "../component/Navbar";
 import Collectionpage from "./Collectionpage";
+import { Link } from "react-router-dom";
+import AboutUs from "./AboutUs";
 
 const HomePage = () => {
   const heroRef = useRef(null);
@@ -64,7 +66,7 @@ const HomePage = () => {
             {/* Heading - Responsive sizing */}
             <h1 className="hero-title font-light text-4xl sm:text-6xl md:text-7xl lg:text-8xl leading-[1.05] tracking-tight mb-8">
               UNVEIL 
-              <span className="italic font-serif">TIMELESS</span> <br />
+              <span className="italic  font-serif">TIMELESS</span> <br />
               ELEGANCE
             </h1>
 
@@ -81,9 +83,11 @@ const HomePage = () => {
                 <div className="absolute inset-0 bg-gold translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
               </button>
               
+           <Link to="/about">
               <button className="px-10 py-4 border border-zinc-700 text-white text-[10px] tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all duration-300">
                 Our Story
               </button>
+           </Link>
             </div>
           </div>
         </div>
