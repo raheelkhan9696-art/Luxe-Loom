@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import uservideo from "../assets/uservideo.mp4";
-import poster from "../assets/poster.png";  // optional poster image for the video
+import poster from "../assets/poster.png";
 
-const Userintercationpage = () => {
+const UserInteractionPage = () => {
   const videoRef = useRef(null);
-  const overlayRef = useRef(null);
+  const containerRef = useRef(null);
   const cursorRef = useRef(null);
   const navigate = useNavigate();
 
@@ -15,204 +15,181 @@ const Userintercationpage = () => {
   const [lineIndex, setLineIndex] = useState(0);
 
   const promoLines = [
-    "Premium Quality Crafted For You",
-    "Exclusive Deals & Limited Offers",
-    "Luxury Fashion Designed To Impress",
-    "24/7 Dedicated Customer Support",
-    "Experience Style. Experience Luxe & Loom."
+    "Precision in every second.",
+    "A legacy of timeless design.",
+    "The summit of horological art.",
+    "Crafted for the extraordinary."
   ];
 
-  /* -------- CURSOR EFFECT (Desktop Only) -------- */
+  /* -------- CINEMATIC CURSOR -------- */
   useEffect(() => {
-    const isMobile = window.innerWidth < 768;
-    if (isMobile) return;
+    const ctx = gsap.context(() => {
+      const cursor = cursorRef.current;
+      
+      const moveCursor = (e) => {
+        gsap.to(cursor, {
+          x: e.clientX,
+          y: e.clientY,
+          duration: 0.8,
+          ease: "power3.out",
+        });
+      };
 
-    const cursor = cursorRef.current;
-
-    gsap.set(cursor, {
-      scale: 2.8,
-      opacity: 0.25,
-      backgroundColor: "rgba(255, 215, 0, 0.15)",
-      boxShadow: "0 0 25px 10px rgba(255, 215, 0, 0.3)",
+      window.addEventListener("mousemove", moveCursor);
+      return () => window.removeEventListener("mousemove", moveCursor);
     });
-
-    let lastTime = 0;
-
-    const moveCursor = (e) => {
-      const now = performance.now();
-      if (now - lastTime < 16) return;
-      lastTime = now;
-
-      gsap.to(cursor, {
-        x: e.clientX - cursor.offsetWidth / 2,
-        y: e.clientY - cursor.offsetHeight / 2,
-        duration: 0.12,
-        ease: "power2.out",
-      });
-    };
-
-    const shineAnim = gsap.to(cursor, {
-      scale: 1.1,
-      opacity: 0.35,
-      repeat: -1,
-      yoyo: true,
-      duration: 1.2,
-      ease: "power1.inOut",
-    });
-
-    window.addEventListener("mousemove", moveCursor);
-
-    return () => {
-      window.removeEventListener("mousemove", moveCursor);
-      shineAnim.kill();
-    };
+    return () => ctx.revert();
   }, []);
 
-  /* -------- PROMO TEXT LOOP -------- */
+  /* -------- TEXT LOOP -------- */
   useEffect(() => {
     if (!started) return;
-
     const interval = setInterval(() => {
       setLineIndex((prev) => (prev + 1) % promoLines.length);
-    }, 3000);
-
+    }, 4000);
     return () => clearInterval(interval);
   }, [started]);
 
-  /* -------- START VIDEO -------- */
+  /* -------- INTERACTION HANDLER -------- */
   const handleStart = async () => {
     setStarted(true);
-
     const video = videoRef.current;
 
     if (video) {
-      try {
-        video.muted = false;
-        await video.play();
-      } catch (err) {
-        console.log("Video play blocked:", err);
-      }
+      video.muted = false;
+      video.play().catch(err => console.log("Autoplay prevented", err));
     }
 
-    gsap.to(overlayRef.current, {
-      opacity: 0,
-      scale: 1.2,
-      duration: 1,
-      ease: "power3.out",
-    });
-
-    gsap.fromTo(
-      video,
-      { scale: 1.05 },
-      { scale: 1, duration: 1.5, ease: "power3.out" }
-    );
+    // Zoom out video effect for cinematic reveal
+    gsap.fromTo(video, { scale: 1.2 }, { scale: 1, duration: 2.5, ease: "expo.out" });
   };
 
-  const handleVideoEnd = () => navigate("/home");
-
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-black text-white">
-
-      {/* Cursor Glow */}
+    <div ref={containerRef} className="relative w-full h-screen overflow-hidden bg-[#050505] text-white">
+      
+      {/* Premium Cursor Glow */}
       <div
         ref={cursorRef}
-        className="hidden md:block fixed w-32 h-32 rounded-full pointer-events-none blur-2xl mix-blend-overlay z-40"
-        style={{ willChange: "transform, opacity" }}
+        className="fixed w-[400px] h-[400px] bg-gold/5 rounded-full blur-[120px] pointer-events-none z-0 -translate-x-1/2 -translate-y-1/2"
       />
 
-      {/* Background Video */}
+      {/* Video Layer */}
       <video
         ref={videoRef}
-        onEnded={handleVideoEnd}
-        preload="none"
+        onEnded={() => navigate("/home")}
         playsInline
-        muted
-        poster={poster}   // optional preview image
-        className="absolute w-full h-full object-cover will-change-transform"
+        className={`absolute w-full h-full object-cover transition-opacity duration-1000 ${started ? 'opacity-60' : 'opacity-0'}`}
       >
         <source src={uservideo} type="video/mp4" />
       </video>
 
-      {/* Brand Title */}
-      {started && (
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="absolute top-10 w-full text-center px-4 z-50"
-        >
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-[0.3em] drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]">
-            LUXE&LOOM
-          </h1>
-
-          <p className="text-xs sm:text-sm md:text-base mt-2 text-white/90 tracking-widest">
-            Redefining Modern Fashion
-          </p>
-        </motion.div>
-      )}
-
-      {/* Promotional Text */}
-      {started && (
-        <div className="absolute bottom-24 w-full flex justify-center px-6 text-center z-50">
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={lineIndex}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -30 }}
-              transition={{ duration: 0.8 }}
-              className="text-sm sm:text-lg md:text-xl lg:text-2xl tracking-wider text-white/90 max-w-xl"
-            >
-              {promoLines[lineIndex]}
-            </motion.p>
-          </AnimatePresence>
-        </div>
-      )}
-
-      {/* START Overlay */}
-      <div
-        ref={overlayRef}
-        className="absolute inset-0 flex items-center justify-center z-50"
-        style={{ willChange: "opacity, transform" }}
-      >
+      {/* --- ENTRY OVERLAY --- */}
+    <AnimatePresence>
         {!started && (
-          <motion.div
-            onClick={handleStart}
-            className="cursor-pointer text-center relative"
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.3 }}
-            transition={{ duration: 0.8 }}
+          <motion.div 
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 1.1 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black"
           >
-            <motion.h1
-              animate={{ scale: [1, 1.08, 1] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="text-white text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold drop-shadow-[0_0_20px_rgba(255,255,255,0.9)]"
-            >
-              START
-            </motion.h1>
+            
+            {/* --- NEW: Background Image Layer --- */}
+            <div className="absolute inset-0 z-0 overflow-hidden">
+              <img 
+                src={poster} // Assuming 'poster' is imported. Use a high-quality, muted image.
+                alt="Experience Background" 
+                className="w-full h-full object-cover scale-110 opacity-30 group-hover:opacity-40 transition-opacity duration-1000"
+              />
+              {/* Refined Vignette Overlay: Ensures legibility */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black" />
+            </div>
 
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: "100%" }}
-              transition={{ delay: 0.4, duration: 1 }}
-              className="h-[2px] bg-white mt-4 mx-auto"
-            />
+            {/* --- Interactable Content (Now z-10) --- */}
+            <div 
+              onClick={handleStart}
+              className="group cursor-pointer flex flex-col items-center z-10"
+            >
+              <div className="overflow-hidden mb-4">
+                <motion.h2 
+                  initial={{ y: 100 }}
+                  animate={{ y: 0 }}
+                  transition={{ duration: 1, ease: "expo.out" }}
+                  className="text-[10px] tracking-[0.8em] uppercase text-gold opacity-70 group-hover:opacity-100 transition-opacity"
+                >
+                  Enter the Experience
+                </motion.h2>
+              </div>
+              
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                className="relative flex items-center justify-center w-32 h-32 md:w-40 md:h-40 border border-white/10 rounded-full bg-black/40 backdrop-blur-sm"
+              >
+                <div className="absolute inset-0 border border-gold/30 rounded-full animate-ping opacity-20" />
+                <span className="text-xs tracking-[0.3em] uppercase font-light">Explore</span>
+              </motion.div>
+            </div>
+            
+            <p className="absolute bottom-12 text-[9px] tracking-[0.4em] text-zinc-600 uppercase z-10">
+              Sound Recommended
+            </p>
           </motion.div>
         )}
-      </div>
+      </AnimatePresence>
 
-      {/* Bottom Luxury Line */}
+      {/* --- REVEALED CONTENT --- */}
       {started && (
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: "100%" }}
-          transition={{ duration: 4 }}
-          className="absolute bottom-0 left-0 h-[2px] bg-white/40 z-50"
-        />
+        <>
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="absolute inset-0 flex flex-col justify-between p-10 md:p-20 z-10 pointer-events-none"
+          >
+            {/* Header */}
+            <div className="flex justify-between items-start">
+              <h1 className="text-xl md:text-2xl font-light tracking-[0.5em] uppercase italic font-serif">
+                Luxe<span className="text-gold">&</span>Loom
+              </h1>
+              <div className="text-[10px] tracking-widest uppercase text-right">
+                <p>Volume / 01</p>
+                <p className="text-zinc-500">2026 Edition</p>
+              </div>
+            </div>
+
+            {/* Centered Promo Line */}
+            <div className="text-center self-center">
+              <AnimatePresence mode="wait">
+                <motion.h3
+                  key={lineIndex}
+                  initial={{ opacity: 0, filter: "blur(10px)", y: 20 }}
+                  animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+                  exit={{ opacity: 0, filter: "blur(10px)", y: -20 }}
+                  transition={{ duration: 1.2, ease: "power2.out" }}
+                  className="text-2xl md:text-5xl font-extralight tracking-tight"
+                >
+                  {promoLines[lineIndex]}
+                </motion.h3>
+              </AnimatePresence>
+            </div>
+
+            {/* Progress Bar Container */}
+            <div className="w-full flex items-center gap-6">
+              <span className="text-[10px] font-mono opacity-50">01</span>
+              <div className="relative flex-1 h-[1px] bg-white/10 overflow-hidden">
+                <motion.div 
+                   initial={{ x: "-100%" }}
+                   animate={{ x: "0%" }}
+                   transition={{ duration: 15, ease: "linear" }}
+                   className="absolute inset-0 bg-gold"
+                />
+              </div>
+              <span className="text-[10px] font-mono opacity-50">SKIP</span>
+            </div>
+          </motion.div>
+        </>
       )}
     </div>
   );
 };
 
-export default Userintercationpage;
+export default UserInteractionPage;
