@@ -13,7 +13,7 @@ const Navbar = () => {
 
         {/* Logo */}
         <div className="text-2xl font-semibold tracking-[4px] text-[#FFD700]">
-          LUXE & LOOM
+          LUXE&LOOM
         </div>
 
         {/* Desktop Navigation */}

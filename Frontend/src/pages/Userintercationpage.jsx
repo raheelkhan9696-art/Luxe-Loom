@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import gsap from "gsap";
 import uservideo from "../assets/uservideo.mp4";
+import poster from "../assets/poster.png";  // optional poster image for the video
 
 const Userintercationpage = () => {
   const videoRef = useRef(null);
@@ -21,11 +22,6 @@ const Userintercationpage = () => {
     "Experience Style. Experience Luxe & Loom."
   ];
 
-  /* -------- VIDEO PRELOAD -------- */
-  useEffect(() => {
-    if (videoRef.current) videoRef.current.load();
-  }, []);
-
   /* -------- CURSOR EFFECT (Desktop Only) -------- */
   useEffect(() => {
     const isMobile = window.innerWidth < 768;
@@ -33,29 +29,28 @@ const Userintercationpage = () => {
 
     const cursor = cursorRef.current;
 
-    // Initial style for cursor
     gsap.set(cursor, {
-      scale: 3,
-      opacity: 0.2,
+      scale: 2.8,
+      opacity: 0.25,
       backgroundColor: "rgba(255, 215, 0, 0.15)",
-      boxShadow: "0 0 30px 10px rgba(255, 215, 0, 0.3)",
+      boxShadow: "0 0 25px 10px rgba(255, 215, 0, 0.3)",
     });
 
-    // Mouse follow with throttling
     let lastTime = 0;
+
     const moveCursor = (e) => {
       const now = performance.now();
-      if (now - lastTime < 16) return; // ~60fps
+      if (now - lastTime < 16) return;
       lastTime = now;
+
       gsap.to(cursor, {
         x: e.clientX - cursor.offsetWidth / 2,
         y: e.clientY - cursor.offsetHeight / 2,
-        duration: 0.1,
+        duration: 0.12,
         ease: "power2.out",
       });
     };
 
-    // Shine pulse
     const shineAnim = gsap.to(cursor, {
       scale: 1.1,
       opacity: 0.35,
@@ -66,6 +61,7 @@ const Userintercationpage = () => {
     });
 
     window.addEventListener("mousemove", moveCursor);
+
     return () => {
       window.removeEventListener("mousemove", moveCursor);
       shineAnim.kill();
@@ -75,19 +71,23 @@ const Userintercationpage = () => {
   /* -------- PROMO TEXT LOOP -------- */
   useEffect(() => {
     if (!started) return;
+
     const interval = setInterval(() => {
       setLineIndex((prev) => (prev + 1) % promoLines.length);
     }, 3000);
+
     return () => clearInterval(interval);
   }, [started]);
 
   /* -------- START VIDEO -------- */
   const handleStart = async () => {
     setStarted(true);
+
     const video = videoRef.current;
+
     if (video) {
       try {
-        video.muted = false; // ensure autoplay works
+        video.muted = false;
         await video.play();
       } catch (err) {
         console.log("Video play blocked:", err);
@@ -98,11 +98,14 @@ const Userintercationpage = () => {
       opacity: 0,
       scale: 1.2,
       duration: 1,
-      ease: "power3.out"
+      ease: "power3.out",
     });
 
-    // Reduced scale animation for smoother performance
-    gsap.fromTo(video, { scale: 1.05 }, { scale: 1, duration: 1.5, ease: "power3.out" });
+    gsap.fromTo(
+      video,
+      { scale: 1.05 },
+      { scale: 1, duration: 1.5, ease: "power3.out" }
+    );
   };
 
   const handleVideoEnd = () => navigate("/home");
@@ -113,7 +116,7 @@ const Userintercationpage = () => {
       {/* Cursor Glow */}
       <div
         ref={cursorRef}
-        className="hidden md:block fixed w-40 h-40 rounded-full pointer-events-none blur-3xl mix-blend-overlay z-40"
+        className="hidden md:block fixed w-32 h-32 rounded-full pointer-events-none blur-2xl mix-blend-overlay z-40"
         style={{ willChange: "transform, opacity" }}
       />
 
@@ -121,10 +124,10 @@ const Userintercationpage = () => {
       <video
         ref={videoRef}
         onEnded={handleVideoEnd}
-        preload="metadata"
+        preload="none"
         playsInline
         muted
-        autoPlay={started}
+        poster={poster}   // optional preview image
         className="absolute w-full h-full object-cover will-change-transform"
       >
         <source src={uservideo} type="video/mp4" />
@@ -136,12 +139,13 @@ const Userintercationpage = () => {
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
-          className="absolute top-8 md:top-12 w-full text-center px-4 z-50 relative"
+          className="absolute top-10 w-full text-center px-4 z-50"
         >
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-[0.3em] text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-[0.3em] drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]">
             LUXE&LOOM
           </h1>
-          <p className="text-xs sm:text-sm md:text-base mt-2 text-white/90 tracking-widest drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">
+
+          <p className="text-xs sm:text-sm md:text-base mt-2 text-white/90 tracking-widest">
             Redefining Modern Fashion
           </p>
         </motion.div>
@@ -149,7 +153,7 @@ const Userintercationpage = () => {
 
       {/* Promotional Text */}
       {started && (
-        <div className="absolute bottom-20 md:bottom-28 w-full flex justify-center px-6 text-center z-50">
+        <div className="absolute bottom-24 w-full flex justify-center px-6 text-center z-50">
           <AnimatePresence mode="wait">
             <motion.p
               key={lineIndex}
@@ -157,7 +161,7 @@ const Userintercationpage = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -30 }}
               transition={{ duration: 0.8 }}
-              className="text-sm sm:text-lg md:text-xl lg:text-2xl tracking-wider text-white/90 max-w-xl drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+              className="text-sm sm:text-lg md:text-xl lg:text-2xl tracking-wider text-white/90 max-w-xl"
             >
               {promoLines[lineIndex]}
             </motion.p>
@@ -166,7 +170,11 @@ const Userintercationpage = () => {
       )}
 
       {/* START Overlay */}
-      <div ref={overlayRef} className="absolute inset-0 flex items-center justify-center z-50" style={{ willChange: "opacity, transform" }}>
+      <div
+        ref={overlayRef}
+        className="absolute inset-0 flex items-center justify-center z-50"
+        style={{ willChange: "opacity, transform" }}
+      >
         {!started && (
           <motion.div
             onClick={handleStart}
@@ -178,8 +186,8 @@ const Userintercationpage = () => {
           >
             <motion.h1
               animate={{ scale: [1, 1.08, 1] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className="text-white text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-normal drop-shadow-[0_0_20px_rgba(255,255,255,0.9)]"
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="text-white text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold drop-shadow-[0_0_20px_rgba(255,255,255,0.9)]"
             >
               START
             </motion.h1>
@@ -188,7 +196,7 @@ const Userintercationpage = () => {
               initial={{ width: 0 }}
               animate={{ width: "100%" }}
               transition={{ delay: 0.4, duration: 1 }}
-              className="h-[2px] bg-white mt-3 md:mt-4 mx-auto"
+              className="h-[2px] bg-white mt-4 mx-auto"
             />
           </motion.div>
         )}
