@@ -7,7 +7,6 @@ import collection1 from "../assets/collection1.jpg";
 import collection2 from "../assets/collection2.jpg";
 import collection3 from "../assets/collection3.jpg";
 import collection4 from "../assets/collection4.jpg";
-import Navbar from "../component/Navbar";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -41,7 +40,6 @@ const AboutUs = () => {
 
   return (
     <>
-    <Navbar />
     <div ref={containerRef} className="bg-zinc-950 text-slate-200 font-sans antialiased">
       
       {/* --- Minimal Hero --- */}

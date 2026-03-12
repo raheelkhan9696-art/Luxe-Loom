@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from "react";
 import gsap from "gsap";
 import watchhero from "../assets/watchheros.png";
 
-import Navbar from "../component/Navbar";
 import Collectionpage from "./Collectionpage";
 import { Link } from "react-router-dom";
 import AboutUs from "./AboutUs";
@@ -42,7 +41,7 @@ const HomePage = () => {
   return (
     <div ref={heroRef} className="bg-black">
       <div className="relative w-full h-screen text-white overflow-hidden">
-        <Navbar />
+   
 
         {/* --- Background Image with refined overlay --- */}
         <div className="absolute inset-0 overflow-hidden">
@@ -99,7 +98,9 @@ const HomePage = () => {
         </div>
       </div>
 
+      
       <Collectionpage />
+      <AboutUs />
     </div>
   );
 };

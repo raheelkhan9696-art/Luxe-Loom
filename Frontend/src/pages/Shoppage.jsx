@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Filter, LayoutGrid, List, ChevronRight, Star } from "lucide-react";
 import banner from "../assets/banner.png";
-import Navbar from "../component/Navbar";
 
 // Mock Data based on the image
 const products = [
@@ -19,7 +18,6 @@ const ShopPage = () => {
 
   return (
     <>
-    <Navbar />
     <div className="bg-[#0c0c0c] text-zinc-300 min-h-screen font-sans">
       
       {/* --- Page Header --- */}

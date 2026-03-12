@@ -9,7 +9,6 @@ import collection4 from "../assets/collection4.jpg";
 import collection5 from "../assets/collection5.jpg";
 import collection6 from "../assets/collection6.jpg";
 import LuxuryCollection from "../component/LuxuryCollection";
-import Navbar from "../component/Navbar";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -64,7 +63,6 @@ const CollectionPage = () => {
 
   return (
     <>
-    <Navbar />
     
     <div ref={containerRef} className="bg-[#0a0a0a] text-white overflow-hidden selection:bg-white selection:text-black">
       <div ref={sectionRef} className="parallax-scroll min-h-screen">
