@@ -28,8 +28,7 @@ function AppContent() {
 
   const hideLayout =
     location.pathname === "/" || 
-    location.pathname.startsWith("/admin") || 
-    location.pathname.startsWith("/auth");
+    location.pathname.startsWith("/admin") ;
 
   return (
     <>

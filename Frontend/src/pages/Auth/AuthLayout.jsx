@@ -8,9 +8,7 @@ const AuthLayout = ({ children, title, subtitle }) => {
       {/* --- Visual Side (Left) --- */}
       <div className="relative w-full lg:w-1/2 h-[40vh] lg:h-screen bg-[#0a0a0a]">
         {/* Top Branding */}
-        <div className="absolute top-12 left-12 z-20">
-          <h1 className="text-white text-xl font-light tracking-[0.5em]">L & L</h1>
-        </div>
+
 
         {/* Background Image */}
         <img 
