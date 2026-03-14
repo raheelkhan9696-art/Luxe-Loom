@@ -44,11 +44,11 @@ const OrderHistory = () => {
           </div>
           
           <div className="relative w-full md:w-80 group">
-            <Search className="absolute left-0 bottom-3 w-4 h-4 text-zinc-600 group-focus-within:text-gold transition-colors" />
+            <Search className="absolute left-0 bottom-3 w-4 h-4 text-zinc-600 group-focus-within:text-yellow-400 transition-colors" />
             <input 
               type="text" 
               placeholder="SEARCH ORDER ID" 
-              className="w-full bg-transparent border-b border-white/10 pl-8 py-2 text-[10px] tracking-widest outline-none focus:border-gold transition-colors"
+              className="w-full bg-transparent border-b border-white/10 pl-8 py-2 text-[10px] tracking-widest outline-none focus:border-yellow-400 transition-colors"
             />
           </div>
         </header>
@@ -72,7 +72,7 @@ const OrderHistory = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <p className="text-[10px] tracking-[0.2em] text-gold font-bold uppercase">{order.id}</p>
+                    <p className="text-[10px] tracking-[0.2em] text-yellow-400 font-bold uppercase">{order.id}</p>
                     <h3 className="text-sm md:text-base font-light text-white uppercase tracking-wider">{order.name}</h3>
                     
                     <div className="flex gap-6 text-[10px] tracking-widest text-zinc-500 uppercase pt-2">
@@ -92,7 +92,7 @@ const OrderHistory = () => {
                   <div className="flex items-center gap-4">
                     <div className="relative">
                       {order.status === "Order Placed" ? (
-                        <CheckCircle size={18} className="text-gold" />
+                        <CheckCircle size={18} className="text-yellow-400" />
                       ) : (
                         <Clock size={18} className="text-zinc-600" />
                       )}
@@ -117,7 +117,7 @@ const OrderHistory = () => {
                   <button className="flex-1 lg:w-40 py-3 border border-white/10 text-[10px] tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all">
                     Track Order
                   </button>
-                  <button className="flex items-center gap-2 text-[9px] tracking-[0.3em] uppercase text-zinc-600 hover:text-gold transition-colors">
+                  <button className="flex items-center gap-2 text-[9px] tracking-[0.3em] uppercase text-zinc-600 hover:text-yellow-400 transition-colors">
                     DETAILS <ArrowUpRight size={12} />
                   </button>
                 </div>

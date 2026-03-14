@@ -30,7 +30,7 @@ const AdminLayout = () => {
       {/* Mobile Toggle Button */}
       <button 
         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        className="lg:hidden fixed top-6 right-6 z-[100] p-3 bg-white text-black rounded-sm shadow-xl shadow-gold/10"
+        className="lg:hidden fixed top-6 right-6 z-[100] p-3 bg-white text-black rounded-sm shadow-xl shadow-yellow-400/10"
       >
         {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
       </button>

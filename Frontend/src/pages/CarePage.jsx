@@ -18,7 +18,7 @@ const CarePage = () => {
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-gold text-[10px] tracking-[0.5em] uppercase mb-4"
+            className="text-yellow-400 text-[10px] tracking-[0.5em] uppercase mb-4"
           >
             Preservation & Support
           </motion.p>
@@ -46,9 +46,9 @@ const CarePage = () => {
             <motion.div 
               key={i}
               whileHover={{ y: -10 }}
-              className="p-10 bg-white/[0.02] border border-white/5 hover:border-gold/30 transition-all group"
+              className="p-10 bg-white/[0.02] border border-white/5 hover:border-yellow-400/30 transition-all group"
             >
-              <div className="text-gold mb-6 group-hover:scale-110 transition-transform duration-500">{item.icon}</div>
+              <div className="text-yellow-400 mb-6 group-hover:scale-110 transition-transform duration-500">{item.icon}</div>
               <h3 className="text-sm font-bold tracking-[0.2em] uppercase text-white mb-4">{item.title}</h3>
               <p className="text-xs font-light leading-relaxed opacity-50">{item.desc}</p>
             </motion.div>
@@ -58,8 +58,8 @@ const CarePage = () => {
         {/* --- Section 2: Testimonials (The Archive of Trust) --- */}
         <section className="mb-32">
           <div className="flex flex-col items-center mb-16">
-            <h2 className="text-[10px] tracking-[0.5em] uppercase text-gold mb-2">The Archive of Trust</h2>
-            <div className="h-px w-20 bg-gold/30" />
+            <h2 className="text-[10px] tracking-[0.5em] uppercase text-yellow-400 mb-2">The Archive of Trust</h2>
+            <div className="h-px w-20 bg-yellow-400" />
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
@@ -71,12 +71,12 @@ const CarePage = () => {
                 viewport={{ once: true }}
                 className="relative p-8 text-center"
               >
-                <div className="flex justify-center text-gold/40 mb-6 italic font-serif text-4xl leading-none">“</div>
+                <div className="flex justify-center text-yellow-400 mb-6 italic font-serif text-4xl leading-none">“</div>
                 <p className="text-sm font-light italic leading-relaxed text-zinc-400 mb-8 italic">
                   {t.text}
                 </p>
                 <div className="flex justify-center gap-1 mb-4">
-                  {[...Array(t.rating)].map((_, i) => <Star key={i} size={10} className="text-gold" fill="currentColor" />)}
+                  {[...Array(t.rating)].map((_, i) => <Star key={i} size={10} className="text-yellow-400" fill="currentColor" />)}
                 </div>
                 <h4 className="text-[10px] tracking-widest uppercase text-white font-bold">{t.name}</h4>
                 <p className="text-[9px] tracking-[0.2em] uppercase text-zinc-600 mt-1">{t.role}</p>
@@ -87,7 +87,7 @@ const CarePage = () => {
 
         {/* --- Section 3: Bespoke Support Channels --- */}
         <div className="bg-white/[0.02] border border-white/5 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-1/3 h-full bg-gold/5 blur-[120px] rounded-full -translate-y-1/2" />
+          <div className="absolute top-0 right-0 w-1/3 h-full bg-yellow-400 blur-[120px] rounded-full -translate-y-1/2" />
           
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2">
             <div className="p-12 lg:p-20 border-b lg:border-b-0 lg:border-r border-white/5">

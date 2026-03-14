@@ -70,7 +70,7 @@ const UserInteractionPage = () => {
       {/* Premium Cursor Glow */}
       <div
         ref={cursorRef}
-        className="fixed w-[400px] h-[400px] bg-gold/5 rounded-full blur-[120px] pointer-events-none z-0 -translate-x-1/2 -translate-y-1/2"
+        className="fixed w-[400px] h-[400px] bg-yellow-400/5 rounded-full blur-[120px] pointer-events-none z-0 -translate-x-1/2 -translate-y-1/2"
       />
 
       {/* Video Layer */}
@@ -114,7 +114,7 @@ const UserInteractionPage = () => {
                   initial={{ y: 100 }}
                   animate={{ y: 0 }}
                   transition={{ duration: 1, ease: "expo.out" }}
-                  className="text-[10px] tracking-[0.8em] uppercase text-gold opacity-70 group-hover:opacity-100 transition-opacity"
+                  className="text-[10px] tracking-[0.8em] uppercase text-yellow-400 opacity-70 group-hover:opacity-100 transition-opacity"
                 >
                   Enter the Experience
                 </motion.h2>
@@ -124,7 +124,7 @@ const UserInteractionPage = () => {
                 whileHover={{ scale: 1.05 }}
                 className="relative flex items-center justify-center w-32 h-32 md:w-40 md:h-40 border border-white/10 rounded-full bg-black/40 backdrop-blur-sm"
               >
-                <div className="absolute inset-0 border border-gold/30 rounded-full animate-ping opacity-20" />
+                <div className="absolute inset-0 border border-yellow-500 rounded-full animate-ping opacity-20" />
                 <span className="text-xs tracking-[0.3em] uppercase font-light">Explore</span>
               </motion.div>
             </div>
@@ -148,7 +148,7 @@ const UserInteractionPage = () => {
             {/* Header */}
             <div className="flex justify-between items-start">
               <h1 className="text-xl md:text-2xl font-light tracking-[0.5em] uppercase italic font-serif">
-                Luxe<span className="text-gold">&</span>Loom
+                Luxe<span className="text-yellow-400">&</span>Loom
               </h1>
               <div className="text-[10px] tracking-widest uppercase text-right">
                 <p>Volume / 01</p>
@@ -180,7 +180,7 @@ const UserInteractionPage = () => {
                    initial={{ x: "-100%" }}
                    animate={{ x: "0%" }}
                    transition={{ duration: 15, ease: "linear" }}
-                   className="absolute inset-0 bg-gold"
+                   className="absolute inset-0 bg-yellow-400"
                 />
               </div>
               <span className="text-[10px] font-mono opacity-50">SKIP</span>

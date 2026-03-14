@@ -12,7 +12,7 @@ const ContactPage = () => {
           <motion.p 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-gold text-[10px] tracking-[0.5em] uppercase mb-4"
+            className="text-yellow-400 text-[10px] tracking-[0.5em] uppercase mb-4"
           >
             Concierge Service
           </motion.p>
@@ -40,7 +40,7 @@ const ContactPage = () => {
                   <label className="text-[10px] tracking-widest uppercase text-zinc-500 block mb-2">Full Name</label>
                   <input 
                     type="text" 
-                    className="w-full bg-transparent border-b border-white/10 py-3 text-sm focus:border-gold outline-none transition-colors placeholder:text-zinc-800"
+                    className="w-full bg-transparent border-b border-white/10 py-3 text-sm focus:border-yellow-400 outline-none transition-colors placeholder:text-zinc-800"
                     placeholder="E.G. ABDULLAH"
                   />
                 </div>
@@ -48,7 +48,7 @@ const ContactPage = () => {
                   <label className="text-[10px] tracking-widest uppercase text-zinc-500 block mb-2">Email Address</label>
                   <input 
                     type="email" 
-                    className="w-full bg-transparent border-b border-white/10 py-3 text-sm focus:border-gold outline-none transition-colors placeholder:text-zinc-800"
+                    className="w-full bg-transparent border-b border-white/10 py-3 text-sm focus:border-yellow-400 outline-none transition-colors placeholder:text-zinc-800"
                     placeholder="HELLO@LUXEANDLOOM.COM"
                   />
                 </div>
@@ -56,7 +56,7 @@ const ContactPage = () => {
 
               <div className="relative group">
                 <label className="text-[10px] tracking-widest uppercase text-zinc-500 block mb-2">Subject</label>
-                <select className="w-full bg-transparent border-b border-white/10 py-3 text-sm focus:border-gold outline-none transition-colors appearance-none">
+                <select className="w-full bg-transparent border-b border-white/10 py-3 text-sm focus:border-yellow-400 outline-none transition-colors appearance-none">
                   <option className="bg-black">General Inquiry</option>
                   <option className="bg-black">Bespoke Watch Commission</option>
                   <option className="bg-black">Jewelry Customization</option>
@@ -68,16 +68,16 @@ const ContactPage = () => {
                 <label className="text-[10px] tracking-widest uppercase text-zinc-500 block mb-2">Message</label>
                 <textarea 
                   rows="4"
-                  className="w-full bg-transparent border-b border-white/10 py-3 text-sm focus:border-gold outline-none transition-colors placeholder:text-zinc-800 resize-none"
+                  className="w-full bg-transparent border-b border-white/10 py-3 text-sm focus:border-yellow-400 outline-none transition-colors placeholder:text-zinc-800 resize-none"
                   placeholder="HOW CAN OUR CONCIERGE ASSIST YOU?"
                 />
               </div>
 
               <button className="flex items-center gap-4 group">
-                <span className="text-[11px] tracking-[0.4em] uppercase font-bold text-white group-hover:text-gold transition-colors">
+                <span className="text-[11px] tracking-[0.4em] uppercase font-bold text-white group-hover:text-yellow-400 transition-colors">
                   Send Inquiry
                 </span>
-                <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center group-hover:border-gold group-hover:bg-gold group-hover:text-black transition-all">
+                <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center group-hover:border-yellow-400 group-hover:bg-yellow-400 group-hover:text-black transition-all">
                   <ArrowRight size={16} />
                 </div>
               </button>
@@ -94,7 +94,7 @@ const ContactPage = () => {
             {/* Contact Points */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               <div className="space-y-3">
-                <div className="flex items-center gap-3 text-gold">
+                <div className="flex items-center gap-3 text-yellow-400">
                   <MapPin size={16} strokeWidth={1.5} />
                   <h4 className="text-[10px] tracking-[0.3em] uppercase font-bold">Atelier</h4>
                 </div>
@@ -106,7 +106,7 @@ const ContactPage = () => {
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center gap-3 text-gold">
+                <div className="flex items-center gap-3 text-yellow-400">
                   <Phone size={16} strokeWidth={1.5} />
                   <h4 className="text-[10px] tracking-[0.3em] uppercase font-bold">Client Support</h4>
                 </div>
@@ -119,7 +119,7 @@ const ContactPage = () => {
 
             {/* Business Hours */}
             <div className="bg-white/[0.02] border border-white/5 p-8 rounded-sm">
-              <div className="flex items-center gap-3 text-gold mb-6">
+              <div className="flex items-center gap-3 text-yellow-400 mb-6">
                 <Clock size={16} strokeWidth={1.5} />
                 <h4 className="text-[10px] tracking-[0.3em] uppercase font-bold">Viewing Hours</h4>
               </div>
@@ -149,7 +149,7 @@ const ContactPage = () => {
                   <a 
                     key={social} 
                     href="#" 
-                    className="text-[11px] tracking-widest uppercase text-white/40 hover:text-gold transition-colors"
+                    className="text-[11px] tracking-widest uppercase text-white/40 hover:text-yellow-400 transition-colors"
                   >
                     {social}
                   </a>

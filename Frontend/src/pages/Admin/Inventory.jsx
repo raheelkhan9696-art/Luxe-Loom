@@ -4,7 +4,7 @@ import { MoreHorizontal } from "lucide-react";
 const InventoryView = () => {
   const stock = [
     { name: "Cosmograph Daytona", sku: "LL-WAT-001", cat: "Watches", stock: 12, price: "Rs 1,599" },
-    { name: "Heritage Gold Ring", sku: "LL-JWL-042", cat: "Jewelry", stock: 5, price: "Rs 850" },
+    { name: "Heritage yellow-400 Ring", sku: "LL-JWL-042", cat: "Jewelry", stock: 5, price: "Rs 850" },
   ];
 
   return (
@@ -23,7 +23,7 @@ const InventoryView = () => {
               <td className="px-8 py-6 text-white uppercase font-light">{item.name}</td>
               <td className="px-8 py-6 font-mono text-zinc-500">{item.sku}</td>
               <td className="px-8 py-6 text-zinc-500">{item.cat}</td>
-              <td className={`px-8 py-6 ${item.stock < 10 ? "text-gold font-bold" : "text-zinc-500"}`}>{item.stock}</td>
+              <td className={`px-8 py-6 ${item.stock < 10 ? "text-yellow-400 font-bold" : "text-zinc-500"}`}>{item.stock}</td>
               <td className="px-8 py-6 font-mono text-white">{item.price}</td>
               <td className="px-8 py-6 text-right cursor-pointer"><MoreHorizontal size={16} /></td>
             </tr>

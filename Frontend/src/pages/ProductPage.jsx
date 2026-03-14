@@ -38,10 +38,10 @@ const ProductPage = () => {
               className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
             />
             <div className="absolute top-6 right-6 flex flex-col gap-4">
-              <button className="p-3 bg-black/40 backdrop-blur-md rounded-full border border-white/10 hover:bg-gold transition-colors">
+              <button className="p-3 bg-black/40 backdrop-blur-md rounded-full border border-white/10 hover:bg-yellow-400 transition-colors">
                 <Heart size={18} strokeWidth={1.2} />
               </button>
-              <button className="p-3 bg-black/40 backdrop-blur-md rounded-full border border-white/10 hover:bg-gold transition-colors">
+              <button className="p-3 bg-black/40 backdrop-blur-md rounded-full border border-white/10 hover:bg-yellow-400 transition-colors">
                 <Share2 size={18} strokeWidth={1.2} />
               </button>
             </div>
@@ -52,7 +52,7 @@ const ProductPage = () => {
               <div 
                 key={i} 
                 onClick={() => setActiveImg(i)}
-                className={`aspect-square cursor-pointer overflow-hidden border-2 transition-all ${activeImg === i ? 'border-gold' : 'border-transparent opacity-50'}`}
+                className={`aspect-square cursor-pointer overflow-hidden border-2 transition-all ${activeImg === i ? 'border-yellow-400' : 'border-transparent opacity-50'}`}
               >
                 <img src={img} className="w-full h-full object-cover" />
               </div>
@@ -63,11 +63,11 @@ const ProductPage = () => {
         {/* --- Right: Product Details --- */}
         <div className="flex flex-col justify-center">
           <header className="mb-8">
-            <p className="text-gold text-[10px] tracking-[0.4em] uppercase mb-2">{product.brand}</p>
+            <p className="text-yellow-400 text-[10px] tracking-[0.4em] uppercase mb-2">{product.brand}</p>
             <h1 className="text-4xl md:text-5xl font-light text-white tracking-tight mb-4 uppercase">{product.name}</h1>
             
             <div className="flex items-center gap-4 mb-6">
-              <div className="flex text-gold">
+              <div className="flex text-yellow-400">
                 {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
               </div>
               <span className="text-[10px] tracking-widest text-zinc-500 uppercase">8 Verified Reviews</span>
@@ -76,7 +76,7 @@ const ProductPage = () => {
             <div className="flex items-baseline gap-4">
               <span className="text-3xl font-mono text-white">Rs {product.price.toLocaleString()}</span>
               <span className="text-lg font-mono text-zinc-600 line-through">Rs {product.oldPrice.toLocaleString()}</span>
-              <span className="bg-gold/10 text-gold text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider">-45% Off</span>
+              <span className="bg-yellow-400/10 text-yellow-400 text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider">-45% Off</span>
             </div>
           </header>
 
@@ -85,7 +85,7 @@ const ProductPage = () => {
             <div>
               <div className="flex justify-between mb-3 text-[10px] tracking-widest uppercase font-bold">
                 <span>Case Diameter</span>
-                <button className="text-gold underline">Size Guide</button>
+                <button className="text-yellow-400 underline">Size Guide</button>
               </div>
               <div className="flex gap-3">
                 {["36mm", "40mm", "42mm", "44mm"].map(size => (
@@ -93,7 +93,7 @@ const ProductPage = () => {
                     key={size}
                     onClick={() => setSelectedSize(size)}
                     className={`flex-1 py-3 text-xs tracking-widest uppercase border transition-all ${
-                      selectedSize === size ? 'bg-white text-black border-white' : 'border-white/10 text-zinc-500 hover:border-gold'
+                      selectedSize === size ? 'bg-white text-black border-white' : 'border-white/10 text-zinc-500 hover:border-yellow-400'
                     }`}
                   >
                     {size}
@@ -105,27 +105,27 @@ const ProductPage = () => {
             {/* Quantity & Actions */}
             <div className="flex gap-4">
               <div className="flex items-center border border-white/10 px-4 py-3">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-2 hover:text-gold">-</button>
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-2 hover:text-yellow-400">-</button>
                 <span className="px-6 text-sm font-mono">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="px-2 hover:text-gold">+</button>
+                <button onClick={() => setQuantity(quantity + 1)} className="px-2 hover:text-yellow-400">+</button>
               </div>
-              <button className="flex-1 bg-white text-black font-bold text-[11px] tracking-[0.3em] uppercase hover:bg-gold transition-colors">
+              <button className="flex-1 bg-white text-black font-bold text-[11px] tracking-[0.3em] uppercase hover:bg-yellow-400 transition-colors">
                 Add To Cart
               </button>
             </div>
 
-            <button className="w-full bg-gold text-black font-bold text-[11px] tracking-[0.3em] uppercase py-4 hover:bg-[#b89120] transition-colors">
+            <button className="w-full bg-yellow-400 text-black font-bold text-[11px] tracking-[0.3em] uppercase py-4 hover:bg-[#b89120] transition-colors">
               Buy It Now
             </button>
 
             {/* Trust Badges */}
             <div className="grid grid-cols-2 gap-4 py-8 border-y border-white/5">
               <div className="flex items-center gap-3">
-                <ShieldCheck className="text-gold" size={20} strokeWidth={1.2} />
+                <ShieldCheck className="text-yellow-400" size={20} strokeWidth={1.2} />
                 <span className="text-[10px] tracking-widest uppercase text-zinc-400">2 Year Warranty</span>
               </div>
               <div className="flex items-center gap-3">
-                <Truck className="text-gold" size={20} strokeWidth={1.2} />
+                <Truck className="text-yellow-400" size={20} strokeWidth={1.2} />
                 <span className="text-[10px] tracking-widest uppercase text-zinc-400">Complimentary Shipping</span>
               </div>
             </div>
@@ -140,7 +140,7 @@ const ProductPage = () => {
       {/* --- Tabbed Details / Reviews Section --- */}
       <section className="mt-24 border-t border-white/5 pt-16">
         <div className="flex justify-center gap-12 mb-12 text-[11px] tracking-[0.5em] uppercase text-zinc-500">
-          <button className="text-white border-b border-gold pb-2">Description</button>
+          <button className="text-white border-b border-yellow-400 pb-2">Description</button>
           <button className="hover:text-white transition-colors">Material</button>
           <button className="hover:text-white transition-colors">Reviews (8)</button>
         </div>
@@ -154,7 +154,7 @@ const ProductPage = () => {
                   <div className="w-10 h-10 bg-zinc-800 rounded-full flex items-center justify-center text-[10px] text-zinc-500">US</div>
                   <div>
                     <p className="text-xs font-bold text-white uppercase tracking-widest">Urooj S.</p>
-                    <div className="flex text-gold scale-75 origin-left">
+                    <div className="flex text-yellow-400 scale-75 origin-left">
                        {[...Array(5)].map((_, i) => <Star key={i} size={12} fill="currentColor" />)}
                     </div>
                   </div>

@@ -45,7 +45,7 @@ const AboutUs = () => {
       {/* --- Minimal Hero --- */}
       <section className="relative h-[60vh] flex items-center justify-center px-6 border-b border-zinc-800">
         <div className="z-10 text-center">
-          <span className="text-gold uppercase tracking-[0.3em] text-sm mb-4 block">Est. 2024</span>
+          <span className="text-yellow-400 uppercase tracking-[0.3em] text-sm mb-4 block">Est. 2024</span>
           <h1 className="text-5xl md:text-7xl font-light tracking-tight mb-4">
             Our <span className="italic font-serif">Legacy</span>
           </h1>
@@ -58,7 +58,7 @@ const AboutUs = () => {
       {/* --- Our Story (Split Layout) --- */}
       <section className="reveal grid grid-cols-1 md:grid-cols-2 items-center">
         <div className="p-12 md:p-24 border-r border-zinc-800">
-          <h2 className="text-3xl font-semibold text-gold mb-6">The Narrative</h2>
+          <h2 className="text-3xl font-semibold text-yellow-400 mb-6">The Narrative</h2>
           <p className="text-zinc-400 leading-relaxed mb-4">
             Founded on the principle that true luxury isn't loud; it's felt. We started as a small collective of artisans and have grown into a global benchmark for quality.
           </p>
@@ -83,7 +83,7 @@ const AboutUs = () => {
               <div className="overflow-hidden mb-4">
                 <img src={item.img} alt={item.title} className="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-500" />
               </div>
-              <h3 className="text-lg font-medium text-gold mb-1">{item.title}</h3>
+              <h3 className="text-lg font-medium text-yellow-400 mb-1">{item.title}</h3>
               <p className="text-sm text-zinc-500">{item.desc}</p>
             </div>
           ))}
@@ -111,7 +111,7 @@ const AboutUs = () => {
       {/* --- CTA (Clean & Direct) --- */}
       <section className="reveal py-24 text-center">
         <h2 className="text-2xl md:text-3xl font-light mb-8 italic">Ready to experience excellence?</h2>
-        <button className="px-8 py-3 border border-gold text-gold hover:bg-gold hover:text-black transition-colors duration-300 text-sm tracking-widest uppercase">
+        <button className="px-8 py-3 border border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black transition-colors duration-300 text-sm tracking-widest uppercase">
           Get in Touch
         </button>
       </section>

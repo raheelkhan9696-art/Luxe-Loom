@@ -30,9 +30,9 @@ const Footer = () => {
               <input 
                 type="email" 
                 placeholder="EMAIL ADDRESS" 
-                className="w-full bg-transparent border-b border-white/10 py-4 text-xs tracking-widest outline-none focus:border-gold transition-colors placeholder:text-zinc-700"
+                className="w-full bg-transparent border-b border-white/10 py-4 text-xs tracking-widest outline-none focus:border-yellow-400 transition-colors placeholder:text-zinc-700"
               />
-              <button className="absolute right-0 bottom-4 text-gold hover:text-white transition-colors">
+              <button className="absolute right-0 bottom-4 text-yellow-400 hover:text-white transition-colors">
                 <ArrowUpRight size={20} />
               </button>
             </div>
@@ -47,39 +47,39 @@ const Footer = () => {
           <div className="space-y-6">
             <h4 className="text-[10px] tracking-[0.3em] uppercase text-white">Boutique</h4>
             <ul className="space-y-4 text-xs tracking-widest uppercase">
-              <li><Link to="/shop" className="hover:text-gold transition-colors">All Timepieces</Link></li>
-              <li><Link to="/shop" className="hover:text-gold transition-colors">Jewelry</Link></li>
-              <li><Link to="/shop" className="hover:text-gold transition-colors">Bespoke Service</Link></li>
-              <li><Link to="/shop" className="hover:text-gold transition-colors">Accessories</Link></li>
+              <li><Link to="/shop" className="hover:text-yellow-400 transition-colors">All Timepieces</Link></li>
+              <li><Link to="/shop" className="hover:text-yellow-400 transition-colors">Jewelry</Link></li>
+              <li><Link to="/shop" className="hover:text-yellow-400 transition-colors">Bespoke Service</Link></li>
+              <li><Link to="/shop" className="hover:text-yellow-400 transition-colors">Accessories</Link></li>
             </ul>
           </div>
 
           <div className="space-y-6">
             <h4 className="text-[10px] tracking-[0.3em] uppercase text-white">Curation</h4>
             <ul className="space-y-4 text-xs tracking-widest uppercase">
-              <li><Link to="/about" className="hover:text-gold transition-colors">Our Story</Link></li>
-              <li><Link to="/journals" className="hover:text-gold transition-colors">The Journal</Link></li>
-              <li><Link to="/archive" className="hover:text-gold transition-colors">Archive</Link></li>
-              <li><Link to="/sustainability" className="hover:text-gold transition-colors">Ethics</Link></li>
+              <li><Link to="/about" className="hover:text-yellow-400 transition-colors">Our Story</Link></li>
+              <li><Link to="/journals" className="hover:text-yellow-400 transition-colors">The Journal</Link></li>
+              <li><Link to="/archive" className="hover:text-yellow-400 transition-colors">Archive</Link></li>
+              <li><Link to="/sustainability" className="hover:text-yellow-400 transition-colors">Ethics</Link></li>
             </ul>
           </div>
 
           <div className="space-y-6">
             <h4 className="text-[10px] tracking-[0.3em] uppercase text-white">Concierge</h4>
             <ul className="space-y-4 text-xs tracking-widest uppercase">
-              <li><Link to="/shipping" className="hover:text-gold transition-colors">Shipping</Link></li>
-              <li><Link to="/returns" className="hover:text-gold transition-colors">Returns</Link></li>
-              <li><Link to="/care" className="hover:text-gold transition-colors">Product Care</Link></li>
-              <li><Link to="/contact" className="hover:text-gold transition-colors">Contact</Link></li>
+              <li><Link to="/shipping" className="hover:text-yellow-400 transition-colors">Shipping</Link></li>
+              <li><Link to="/returns" className="hover:text-yellow-400 transition-colors">Returns</Link></li>
+              <li><Link to="/care" className="hover:text-yellow-400 transition-colors">Product Care</Link></li>
+              <li><Link to="/contact" className="hover:text-yellow-400 transition-colors">Contact</Link></li>
             </ul>
           </div>
 
           <div className="space-y-6">
             <h4 className="text-[10px] tracking-[0.3em] uppercase text-white">Social</h4>
             <div className="flex gap-6">
-              <Instagram className="w-5 h-5 hover:text-gold cursor-pointer transition-colors" strokeWidth={1.2} />
-              <Twitter className="w-5 h-5 hover:text-gold cursor-pointer transition-colors" strokeWidth={1.2} />
-              <Facebook className="w-5 h-5 hover:text-gold cursor-pointer transition-colors" strokeWidth={1.2} />
+              <Instagram className="w-5 h-5 hover:text-yellow-400 cursor-pointer transition-colors" strokeWidth={1.2} />
+              <Twitter className="w-5 h-5 hover:text-yellow-400 cursor-pointer transition-colors" strokeWidth={1.2} />
+              <Facebook className="w-5 h-5 hover:text-yellow-400 cursor-pointer transition-colors" strokeWidth={1.2} />
             </div>
           </div>
         </div>
@@ -108,3 +108,8 @@ const Footer = () => {
 };
 
 export default Footer;
+
+
+
+
+

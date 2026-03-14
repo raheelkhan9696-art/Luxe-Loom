@@ -8,10 +8,11 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
+  // Cleaned links: Removed duplicates and ensured unique paths
   const navLinks = [
 
-    {name: "", path: "/" },
-    {name: "", path: "/" },
+    { name: "", path: "/h" },
+    { name: "", path: "/s" },
     { name: "Home", path: "/home" },
     { name: "Shop", path: "/shop" },
     { name: "Collections", path: "/collections" },
@@ -28,11 +29,7 @@ const Navbar = () => {
 
   // Prevent scrolling when mobile menu is open
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
+    document.body.style.overflow = open ? "hidden" : "unset";
   }, [open]);
 
   // Close mobile menu on route change
@@ -53,14 +50,14 @@ const Navbar = () => {
         {/* --- Logo --- */}
         <div className="flex-1">
           <Link to="/home" className="text-xl md:text-2xl font-light tracking-[0.4em] text-white group block w-fit">
-            LUXE<span className="italic font-serif font-normal text-zinc-500 group-hover:text-gold transition-colors">&</span>LOOM
+            LUXE<span className="italic font-serif font-normal text-zinc-500 group-hover:text-yellow-500 transition-colors">&</span>LOOM
           </Link>
         </div>
 
         {/* --- Desktop Links --- */}
         <ul className="hidden md:flex items-center space-x-12">
           {navLinks.map((link) => (
-            <li key={link.name} className="relative group">
+            <li key={link.path} className="relative group">
               <Link
                 to={link.path}
                 className={`text-[11px] tracking-[0.3em] uppercase transition-colors duration-300 ${
@@ -69,7 +66,7 @@ const Navbar = () => {
               >
                 {link.name}
               </Link>
-              <span className={`absolute -bottom-1 left-0 h-[1px] bg-gold transition-all duration-500 ${
+              <span className={`absolute -bottom-1 left-0 h-[1px] bg-yellow-600 transition-all duration-500 ${
                 location.pathname === link.path ? "w-full" : "w-0 group-hover:w-full"
               }`}></span>
             </li>
@@ -82,7 +79,7 @@ const Navbar = () => {
           
           <Link to="/cart" className="relative group">
             <ShoppingBag className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-opacity" strokeWidth={1.2} />
-            <span className="absolute -top-1 -right-2 text-[8px] bg-gold text-black w-3.5 h-3.5 flex items-center justify-center rounded-full font-bold">
+            <span className="absolute -top-1 -right-2 text-[8px] bg-yellow-600 text-black w-3.5 h-3.5 flex items-center justify-center rounded-full font-bold">
               0
             </span>
           </Link>
@@ -108,15 +105,15 @@ const Navbar = () => {
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="fixed inset-0 h-screen w-full bg-[#0a0a0a] z-[99] flex flex-col justify-center px-12"
           >
-            {/* Background decorative text or watermark */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[15vw] font-serif italic text-white/[0.01] pointer-events-none select-none">
+            {/* Background decorative watermark */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[15vw] font-serif italic text-white/[0.02] pointer-events-none select-none">
               Luxe &amp; Loom
             </div>
 
             <div className="space-y-10 relative z-10">
               {navLinks.map((link, i) => (
                 <motion.div
-                  key={link.name}
+                  key={link.path}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 + i * 0.1 }}
@@ -145,8 +142,8 @@ const Navbar = () => {
                 Luxe & Loom / 2026
               </p>
               <div className="flex gap-4 opacity-40">
-                <span className="text-[10px] uppercase tracking-widest">IG</span>
-                <span className="text-[10px] uppercase tracking-widest">TW</span>
+                <span className="text-[10px] uppercase tracking-widest text-white">IG</span>
+                <span className="text-[10px] uppercase tracking-widest text-white">TW</span>
               </div>
             </motion.div>
           </motion.div>

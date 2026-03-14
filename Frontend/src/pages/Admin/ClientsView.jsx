@@ -32,7 +32,7 @@ const ClientsView = () => {
 
   const getStatusStyle = (status) => {
     switch (status) {
-      case "Privileged": return "border-gold/50 text-gold bg-gold/5";
+      case "Privileged": return "border-yellow-400/50 text-yellow-400 bg-yellow-400/5";
       case "Heritage": return "border-white/40 text-white bg-white/5";
       default: return "border-zinc-800 text-zinc-500 bg-transparent";
     }
@@ -68,7 +68,7 @@ const ClientsView = () => {
             className="group flex flex-col lg:flex-row items-center justify-between p-6 bg-white/[0.02] border border-white/5 hover:border-white/10 transition-all rounded-sm"
           >
             <div className="flex items-center gap-6 w-full lg:w-1/3">
-              <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-[10px] tracking-tighter text-zinc-400 group-hover:border-gold/50 group-hover:text-gold transition-colors">
+              <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center text-[10px] tracking-tighter text-zinc-400 group-hover:border-yellow-400/50 group-hover:text-yellow-400 transition-colors">
                 {client.initials}
               </div>
               <div>
@@ -115,7 +115,7 @@ const ClientsView = () => {
       <div className="mt-12 p-8 border border-dashed border-white/10 rounded-sm flex flex-col items-center justify-center space-y-4">
         <Shield size={24} className="text-zinc-800" strokeWidth={1} />
         <p className="text-[10px] tracking-[0.3em] uppercase text-zinc-600">Secure Client Data Encryption Active</p>
-        <button className="text-[9px] tracking-widest text-gold uppercase underline decoration-gold/30 underline-offset-4">Export Private Ledger (CSV)</button>
+        <button className="text-[9px] tracking-widest text-yellow-400 uppercase underline decoration-yellow-400/30 underline-offset-4">Export Private Ledger (CSV)</button>
       </div>
     </div>
   );

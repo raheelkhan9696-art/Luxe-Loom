@@ -53,7 +53,7 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }) => {
       </nav>
 
       <div className="pt-8 border-t border-white/5 flex items-center gap-3">
-        <div className="w-9 h-9 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center text-[10px] text-gold font-bold">
+        <div className="w-9 h-9 rounded-full bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center text-[10px] text-yellow-400 font-bold">
           A
         </div>
         <div>

@@ -16,7 +16,7 @@ const OrdersView = ({ orderId = "LX-99281", onBack }) => {
     },
     items: [
       { name: "Cosmograph Daytona", sku: "LL-WAT-001", price: 1599.00, qty: 1, image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=200" },
-      { name: "Heritage Gold Ring", sku: "LL-JWL-042", price: 850.00, qty: 1, image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=200" }
+      { name: "Heritage yellow-400 Ring", sku: "LL-JWL-042", price: 850.00, qty: 1, image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=200" }
     ],
     payment: {
       method: "Cash on Delivery (COD)",
@@ -44,7 +44,7 @@ const OrdersView = ({ orderId = "LX-99281", onBack }) => {
           <button className="p-3 border border-white/10 hover:bg-white/5 transition-all text-zinc-400">
             <Printer size={16} />
           </button>
-          <button className="bg-white text-black px-6 py-3 text-[10px] font-bold tracking-widest uppercase hover:bg-gold transition-colors">
+          <button className="bg-white text-black px-6 py-3 text-[10px] font-bold tracking-widest uppercase hover:bg-yellow-400 transition-colors">
             Update Status
           </button>
         </div>
@@ -56,7 +56,7 @@ const OrdersView = ({ orderId = "LX-99281", onBack }) => {
         <div className="lg:col-span-2 space-y-10">
           {/* Order Items */}
           <section className="bg-white/[0.02] border border-white/5 p-8 rounded-sm">
-            <h3 className="text-[10px] tracking-[0.4em] uppercase text-gold mb-8 font-bold">Consignment Details</h3>
+            <h3 className="text-[10px] tracking-[0.4em] uppercase text-yellow-400 mb-8 font-bold">Consignment Details</h3>
             <div className="space-y-6">
               {orderData.items.map((item, i) => (
                 <div key={i} className="flex items-center justify-between py-4 border-b border-white/5 last:border-0">
@@ -78,11 +78,11 @@ const OrdersView = ({ orderId = "LX-99281", onBack }) => {
 
           {/* Order Timeline */}
           <section className="bg-white/[0.02] border border-white/5 p-8 rounded-sm">
-            <h3 className="text-[10px] tracking-[0.4em] uppercase text-gold mb-8 font-bold">Lifecycle</h3>
+            <h3 className="text-[10px] tracking-[0.4em] uppercase text-yellow-400 mb-8 font-bold">Lifecycle</h3>
             <div className="relative pl-8 space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-white/10">
               <div className="relative flex flex-col gap-1">
-                <div className="absolute -left-8 top-1 w-6 h-6 rounded-full bg-gold/20 border border-gold flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 rounded-full bg-gold" />
+                <div className="absolute -left-8 top-1 w-6 h-6 rounded-full bg-yellow-400/20 border border-yellow-400 flex items-center justify-center">
+                  <div className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
                 </div>
                 <p className="text-[10px] text-white font-bold uppercase tracking-widest">Order Placed</p>
                 <p className="text-[9px] text-zinc-600 uppercase">March 12, 2026 — 10:45 AM</p>
@@ -102,7 +102,7 @@ const OrdersView = ({ orderId = "LX-99281", onBack }) => {
         <div className="space-y-10">
           {/* Customer Info */}
           <section className="bg-white/[0.02] border border-white/5 p-8 rounded-sm space-y-6">
-            <h3 className="text-[10px] tracking-[0.4em] uppercase text-gold font-bold">Client Profile</h3>
+            <h3 className="text-[10px] tracking-[0.4em] uppercase text-yellow-400 font-bold">Client Profile</h3>
             <div className="space-y-4">
               <div className="flex items-start gap-4">
                 <div className="p-2 bg-white/5 rounded-sm"><Mail size={14} className="text-zinc-500" /></div>
@@ -130,7 +130,7 @@ const OrdersView = ({ orderId = "LX-99281", onBack }) => {
 
           {/* Payment Summary */}
           <section className="bg-white/[0.02] border border-white/5 p-8 rounded-sm space-y-6">
-            <h3 className="text-[10px] tracking-[0.4em] uppercase text-gold font-bold">Financial Summary</h3>
+            <h3 className="text-[10px] tracking-[0.4em] uppercase text-yellow-400 font-bold">Financial Summary</h3>
             <div className="space-y-3">
               <div className="flex justify-between text-xs">
                 <span className="text-zinc-500 uppercase tracking-widest">Subtotal</span>
@@ -142,7 +142,7 @@ const OrdersView = ({ orderId = "LX-99281", onBack }) => {
               </div>
               <div className="pt-3 mt-3 border-t border-white/5 flex justify-between">
                 <span className="text-[10px] text-white font-bold uppercase tracking-widest">Total</span>
-                <span className="text-lg font-mono text-gold font-bold underline decoration-double">Rs {orderData.payment.total.toLocaleString()}</span>
+                <span className="text-lg font-mono text-yellow-400 font-bold underline decoration-double">Rs {orderData.payment.total.toLocaleString()}</span>
               </div>
             </div>
             <div className="mt-6 p-4 border border-white/5 bg-white/[0.01] flex items-center gap-3">

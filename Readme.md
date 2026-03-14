@@ -18,7 +18,7 @@ luxe-loom-backend/
 │   ├── routes/             # API Endpoints
 │   │   ├── adminRoutes.js
 │   │   ├── orderRoutes.js
-│   │   └── userRoutes.js
+│   │   └── userRoutes.js 
 │   ├── services/           # Reusable business logic (Email, Payments)
 │   │   ├── orderService.js
 │   │   └── uploadService.js

@@ -30,7 +30,7 @@ const ShopPage = () => {
         />
         <div className="relative z-20 text-center">
           <h1 className="text-4xl md:text-5xl font-light tracking-[0.2em] text-white uppercase">Our Shop</h1>
-          <p className="text-gold text-xs tracking-widest mt-2 italic opacity-70">Something different, every day.</p>
+          <p className="text-yellow-400 text-xs tracking-widest mt-2 italic opacity-70">Something different, every day.</p>
         </div>
       </header>
 
@@ -45,7 +45,7 @@ const ShopPage = () => {
               {["Watches", "Jewellery", "Accessories", "Smartwatch"].map((cat) => (
                 <li key={cat} className="flex justify-between items-center text-sm group cursor-pointer hover:text-white transition-colors">
                   <span>{cat}</span>
-                  <span className="text-[10px] text-zinc-600 group-hover:text-gold transition-colors">(12)</span>
+                  <span className="text-[10px] text-zinc-600 group-hover:text-yellow-400 transition-colors">(12)</span>
                 </li>
               ))}
             </ul>
@@ -55,11 +55,11 @@ const ShopPage = () => {
           <div>
             <h3 className="text-sm font-bold tracking-widest uppercase border-b border-zinc-800 pb-4 mb-6">Filter By Price</h3>
             <div className="h-1 bg-zinc-800 rounded-full relative mb-4">
-              <div className="absolute left-0 right-1/4 h-full bg-gold rounded-full" />
+              <div className="absolute left-0 right-1/4 h-full bg-yellow-400 rounded-full" />
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs text-zinc-500 uppercase">Price: $299 — $8400</span>
-              <button className="text-[10px] bg-gold text-black px-4 py-1.5 font-bold rounded-sm uppercase">Filter</button>
+              <button className="text-[10px] bg-yellow-400 text-black px-4 py-1.5 font-bold rounded-sm uppercase">Filter</button>
             </div>
           </div>
 
@@ -72,7 +72,7 @@ const ShopPage = () => {
                   <img src={p.img} className="w-16 h-16 object-cover rounded-sm grayscale hover:grayscale-0 transition-all" alt={p.name} />
                   <div>
                     <h4 className="text-[11px] font-bold text-zinc-400 leading-tight">{p.name}</h4>
-                    <div className="flex text-gold my-1 scale-75 origin-left">
+                    <div className="flex text-yellow-400 my-1 scale-75 origin-left">
                       {[...Array(5)].map((_, i) => <Star key={i} size={12} fill="currentColor" />)}
                     </div>
                     <span className="text-xs font-mono text-zinc-500">${p.price.toLocaleString()}</span>
@@ -91,8 +91,8 @@ const ShopPage = () => {
             <span>Showing 1–12 of 16 products</span>
             <div className="flex items-center space-x-6">
               <div className="flex space-x-2">
-                <LayoutGrid size={16} className={view === "grid" ? "text-gold" : "cursor-pointer"} onClick={() => setView("grid")} />
-                <List size={16} className={view === "list" ? "text-gold" : "cursor-pointer"} onClick={() => setView("list")} />
+                <LayoutGrid size={16} className={view === "grid" ? "text-yellow-400" : "cursor-pointer"} onClick={() => setView("grid")} />
+                <List size={16} className={view === "list" ? "text-yellow-400" : "cursor-pointer"} onClick={() => setView("list")} />
               </div>
               <select className="bg-transparent border-none focus:ring-0 cursor-pointer">
                 <option>Default Sorting</option>
@@ -113,7 +113,7 @@ const ShopPage = () => {
                 className="group relative text-center"
               >
                 {product.sale && (
-                  <span className="absolute top-4 left-4 z-20 bg-gold text-black text-[9px] font-bold px-2 py-1 uppercase rounded-sm">Sale</span>
+                  <span className="absolute top-4 left-4 z-20 bg-yellow-400 text-black text-[9px] font-bold px-2 py-1 uppercase rounded-sm">Sale</span>
                 )}
                 <div className="relative overflow-hidden mb-6 aspect-[4/5] bg-zinc-900 flex items-center justify-center">
                   <img 
@@ -127,8 +127,8 @@ const ShopPage = () => {
                   </div>
                 </div>
                 
-                <p className="text-[10px] text-gold tracking-widest uppercase mb-1">{product.category}</p>
-                <h2 className="text-lg font-light text-zinc-100 mb-2 group-hover:text-gold transition-colors">{product.name}</h2>
+                <p className="text-[10px] text-yellow-400 tracking-widest uppercase mb-1">{product.category}</p>
+                <h2 className="text-lg font-light text-zinc-100 mb-2 group-hover:text-yellow-400 transition-colors">{product.name}</h2>
                 <p className="text-sm font-mono text-zinc-400">
                   ${product.price.toLocaleString()}.00
                 </p>
@@ -138,9 +138,9 @@ const ShopPage = () => {
 
           {/* Pagination */}
           <div className="mt-16 pt-8 border-t border-zinc-800 flex justify-center space-x-4">
-            <span className="w-10 h-10 flex items-center justify-center bg-gold text-black rounded-full font-bold text-xs">1</span>
-            <span className="w-10 h-10 flex items-center justify-center border border-zinc-800 hover:border-gold transition-colors rounded-full font-bold text-xs cursor-pointer">2</span>
-            <span className="w-10 h-10 flex items-center justify-center border border-zinc-800 hover:border-gold transition-colors rounded-full font-bold text-xs cursor-pointer italic font-serif leading-none">→</span>
+            <span className="w-10 h-10 flex items-center justify-center bg-yellow-400 text-black rounded-full font-bold text-xs">1</span>
+            <span className="w-10 h-10 flex items-center justify-center border border-zinc-800 hover:border-yellow-400 transition-colors rounded-full font-bold text-xs cursor-pointer">2</span>
+            <span className="w-10 h-10 flex items-center justify-center border border-zinc-800 hover:border-yellow-400 transition-colors rounded-full font-bold text-xs cursor-pointer italic font-serif leading-none">→</span>
           </div>
         </section>
       </main>
@@ -156,7 +156,7 @@ const ShopPage = () => {
              <h3 className="text-xs font-bold uppercase tracking-widest">Newsletter</h3>
              <div className="flex border-b border-zinc-700 pb-2">
                 <input type="text" placeholder="Your email address" className="bg-transparent border-none focus:ring-0 text-xs flex-1" />
-                <button className="text-[10px] text-gold uppercase tracking-widest font-bold">Subscribe</button>
+                <button className="text-[10px] text-yellow-400 uppercase tracking-widest font-bold">Subscribe</button>
              </div>
           </div>
           <div className="flex justify-center md:justify-end items-center gap-4">

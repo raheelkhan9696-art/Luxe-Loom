@@ -12,7 +12,7 @@ const Dashboard = () => (
           <p className="text-[10px] tracking-widest text-zinc-500 uppercase mb-4">{stat.label}</p>
           <div className="flex justify-between items-end">
             <h3 className="text-3xl font-mono text-white">{stat.value}</h3>
-            <span className="text-[10px] text-gold font-bold">{stat.grow}</span>
+            <span className="text-[10px] text-yellow-400 font-bold">{stat.grow}</span>
           </div>
         </div>
       ))}
