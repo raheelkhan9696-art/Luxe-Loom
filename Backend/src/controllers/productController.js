@@ -1,12 +1,11 @@
 import Product from '../models/Product.js';
 
-
-
+// --- 1. CREATE PRODUCT (ADMIN) ---
 export const createProduct = async (req, res) => {
   try {
     const { name, description, price, category, material, countInStock } = req.body;
 
-    // Check if a file was uploaded to Cloudinary
+    // Check if a file was uploaded to Cloudinary, else fallback to body (if provided)
     const imagePath = req.file ? req.file.path : req.body.mainImage;
 
     const product = new Product({
@@ -16,7 +15,7 @@ export const createProduct = async (req, res) => {
       category,
       material,
       countInStock,
-      mainImage: imagePath, // This is now the Cloudinary URL
+      mainImage: imagePath, 
       createdBy: req.user._id
     });
 
@@ -26,12 +25,10 @@ export const createProduct = async (req, res) => {
     res.status(400).json({ message: "Product creation failed", error: err.message });
   }
 };
-// --- 1. GET ALL PRODUCTS ---
-// @desc    Fetch all products with optional filtering
-// @route   GET /api/products
+
+// --- 2. GET ALL PRODUCTS ---
 export const getProducts = async (req, res) => {
   try {
-    // Basic filtering: e.g., /api/products?category=Watches
     const keyword = req.query.keyword ? {
       name: {
         $regex: req.query.keyword,
@@ -46,9 +43,7 @@ export const getProducts = async (req, res) => {
   }
 };
 
-// --- 2. GET PRODUCT BY SLUG ---
-// @desc    Fetch single product by its URL-friendly slug
-// @route   GET /api/products/slug/:slug
+// --- 3. GET PRODUCT BY SLUG ---
 export const getProductBySlug = async (req, res) => {
   try {
     const product = await Product.findOne({ slug: req.params.slug });
@@ -63,9 +58,7 @@ export const getProductBySlug = async (req, res) => {
   }
 };
 
-// --- 3. DELETE PRODUCT (ADMIN) ---
-// @desc    Remove a product from the inventory
-// @route   DELETE /api/products/:id
+// --- 4. DELETE PRODUCT (ADMIN) ---
 export const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -81,20 +74,20 @@ export const deleteProduct = async (req, res) => {
   }
 };
 
-// --- 4. UPDATE PRODUCT (ADMIN) ---
-// @desc    Update stock, price, or details
-// @route   PUT /api/products/:id
+// --- 5. UPDATE PRODUCT (ADMIN) ---
 export const updateProduct = async (req, res) => {
-  const { name, price, description, mainImage, category, countInStock, material } = req.body;
-
   try {
+    const { name, price, description, category, countInStock, material } = req.body;
     const product = await Product.findById(req.params.id);
 
     if (product) {
+      // Logic for new Cloudinary upload during update
+      const imagePath = req.file ? req.file.path : req.body.mainImage;
+
       product.name = name || product.name;
       product.price = price || product.price;
       product.description = description || product.description;
-      product.mainImage = mainImage || product.mainImage;
+      product.mainImage = imagePath || product.mainImage; // Correctly handle new file or keep old
       product.category = category || product.category;
       product.countInStock = countInStock || product.countInStock;
       product.material = material || product.material;
@@ -105,6 +98,6 @@ export const updateProduct = async (req, res) => {
       res.status(404).json({ message: 'Product not found' });
     }
   } catch (error) {
-    res.status(400).json({ message: 'Invalid update data' });
+    res.status(400).json({ message: 'Invalid update data', error: error.message });
   }
 };

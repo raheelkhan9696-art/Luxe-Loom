@@ -12,9 +12,9 @@ const CheckoutPage = () => {
         <div className="max-w-xl ml-auto">
           {/* Header */}
           <div className="mb-12">
-            <h1 className="text-2xl font-light tracking-[0.4em] text-white uppercase mb-2">
+            {/* <h1 className="text-2xl font-light tracking-[0.4em] text-white uppercase mb-2">
               Luxe<span className="italic font-serif font-normal text-zinc-500">&</span>Loom
-            </h1>
+            </h1> */}
             <nav className="flex items-center gap-2 text-[10px] tracking-widest uppercase text-zinc-500">
               <Link to="/cart" className="hover:text-yellow-400 transition-colors">Cart</Link>
               <ChevronLeft size={10} className="rotate-180" />

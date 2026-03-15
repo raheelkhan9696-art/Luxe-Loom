@@ -52,25 +52,31 @@ export const registerUser = async (req, res) => {
 // @route   POST /api/auth/login
 export const authUser = async (req, res) => {
   const { email, password } = req.body;
+  console.log("Login Attempt:", email);
 
-  try {
-    // We must explicitly select the password because we set 'select: false' in the model
-    const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ email }).select('+password');
+  
+  if (!user) {
+    console.log("User not found in database");
+    return res.status(401).json({ message: 'Invalid email or password' });
+  }
 
-    if (user && (await user.comparePassword(password))) {
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        tier: user.tier,
-        token: generateToken(user._id),
-      });
-    } else {
-      res.status(401).json({ message: 'Invalid email or password' });
-    }
-  } catch (error) {
-    res.status(500).json({ message: 'Server error during login' });
+  const isMatch = await user.comparePassword(password);
+  console.log("Password Match Status:", isMatch);
+
+  if (isMatch) {
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      tier: user.tier,
+      token: generateToken(user._id),
+      message: 'Login successful' // Added message for clarity
+    });
+    
+  } else {
+    res.status(401).json({ message: 'Invalid email or password' });
   }
 };
 

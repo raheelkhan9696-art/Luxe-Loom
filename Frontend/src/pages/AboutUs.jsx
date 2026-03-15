@@ -58,7 +58,7 @@ const AboutUs = () => {
       {/* --- Our Story (Split Layout) --- */}
       <section className="reveal grid grid-cols-1 md:grid-cols-2 items-center">
         <div className="p-12 md:p-24 border-r border-zinc-800">
-          <h2 className="text-3xl font-semibold text-yellow-400 mb-6">The Narrative</h2>
+          <h2 className="text-3xl font-semibold text-yellow-600 mb-6">The Narrative</h2>
           <p className="text-zinc-400 leading-relaxed mb-4">
             Founded on the principle that true luxury isn't loud; it's felt. We started as a small collective of artisans and have grown into a global benchmark for quality.
           </p>

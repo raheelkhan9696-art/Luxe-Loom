@@ -183,7 +183,13 @@ const UserInteractionPage = () => {
                    className="absolute inset-0 bg-yellow-400"
                 />
               </div>
+
+
+
               <span className="text-[10px] font-mono opacity-50">SKIP</span>
+
+
+              
             </div>
           </motion.div>
         </>

@@ -8,6 +8,7 @@ import userRoutes from "./src/routes/userroutes.js";
 import orderRoutes from "./src/routes/orderroutes.js";
 import productRoutes from "./src/routes/Productroutes.js";
 import uploadRoutes from "./src/routes/uploadroutes.js";
+import clientroutes from "./src/routes/clientroutes.js";
 
 // ... other app.use calls
 
@@ -29,6 +30,7 @@ app.use("/api/auth", userRoutes); // Login, Signup, Profile
 app.use("/api/orders", orderRoutes); // Order creation, tracking
 app.use("/api/products", productRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/client", clientroutes); // Client-facing product browsing, cart, checkout
 
 app.use((err, req, res, next) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;

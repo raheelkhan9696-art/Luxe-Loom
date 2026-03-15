@@ -64,7 +64,7 @@ const HomePage = () => {
             {/* Heading - Responsive sizing */}
             <h1 className="hero-title font-light text-4xl sm:text-6xl md:text-7xl lg:text-8xl leading-[1.05] tracking-tight mb-8">
               UNVEIL
-              <span className="italic  font-serif">TIMELESS</span> <br />
+              <span className="italic text-gray-200 font-serif">TIMELESS</span> <br />
               ELEGANCE
             </h1>
 

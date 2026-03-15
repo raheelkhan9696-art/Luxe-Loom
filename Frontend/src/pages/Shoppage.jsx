@@ -145,27 +145,7 @@ const ShopPage = () => {
         </section>
       </main>
 
-      {/* --- Simple Premium Footer Segment --- */}
-      <footer className="bg-black py-20 border-t border-zinc-800 px-6">
-        <div className="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left">
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold tracking-[0.3em] text-white">WOODSTOCK</h2>
-            <p className="text-xs text-zinc-500 leading-loose">A modern fully responsive retina ready WooCommerce theme for luxury items.</p>
-          </div>
-          <div className="space-y-4">
-             <h3 className="text-xs font-bold uppercase tracking-widest">Newsletter</h3>
-             <div className="flex border-b border-zinc-700 pb-2">
-                <input type="text" placeholder="Your email address" className="bg-transparent border-none focus:ring-0 text-xs flex-1" />
-                <button className="text-[10px] text-yellow-400 uppercase tracking-widest font-bold">Subscribe</button>
-             </div>
-          </div>
-          <div className="flex justify-center md:justify-end items-center gap-4">
-             {["VISA", "PAYPAL", "AMEX", "STRIPE"].map(card => (
-               <div key={card} className="w-10 h-6 bg-zinc-800 flex items-center justify-center rounded-sm text-[8px] font-bold text-zinc-500">{card}</div>
-             ))}
-          </div>
-        </div>
-      </footer>
+ 
     </div>
     </>
   );

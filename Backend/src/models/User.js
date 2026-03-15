@@ -17,7 +17,7 @@ const UserSchema = new mongoose.Schema({
     type: String, 
     required: [true, "Please provide a password"],
     minlength: 8,
-    select: false // This prevents the password from being returned in API queries by default
+    select: false 
   },
   role: { 
     type: String, 
@@ -32,21 +32,26 @@ const UserSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // --- Password Hashing Logic ---
-UserSchema.pre('save', async function(next) {
-  // Only hash the password if it has been modified (or is new)
-  if (!this.isModified('password')) return next();
+// Removed 'next' parameter - Mongoose handles async returns automatically
+UserSchema.pre('save', async function() {
+  if (!this.isModified('password')) {
+    return; 
+  }
 
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    next();
   } catch (err) {
-    next(err);
+    // If you absolutely must use next here, ensure it's defined in the params
+    // but in async/await, throwing or returning works better.
+    throw new Error(err);
   }
 });
 
 // --- Method to Compare Passwords ---
 UserSchema.methods.comparePassword = async function(candidatePassword) {
+  // candidatePassword = what user typed
+  // this.password = what is in DB (only available if .select('+password') was used)
   return await bcrypt.compare(candidatePassword, this.password);
 };
 

@@ -5,43 +5,40 @@ import Product from '../models/Product.js';
 // @desc    Create new order with local payment options
 // @route   POST /api/orders
 export const addOrderItems = async (req, res) => {
-  const {
-    orderItems,
-    shippingAddress,
-    paymentMethod,
-    itemsPrice,
-    taxPrice,
-    shippingPrice,
-    totalPrice,
-    transactionId, // For EasyPaisa/JazzCash manual verification
-  } = req.body;
-
-  if (orderItems && orderItems.length === 0) {
-    res.status(400).json({ message: 'No order items' });
-    return;
-  }
-
   try {
-    const order = new Order({
-      orderNumber: `LL-${Date.now().toString().slice(-6)}`, // Generates LL-123456
-      user: req.user._id,
+    const {
       orderItems,
       shippingAddress,
       paymentMethod,
-      paymentResult: {
-        transactionId: transactionId || 'N/A',
-        status: paymentMethod === 'Cash on Delivery' ? 'Awaiting Collection' : 'Pending Verification',
-      },
       itemsPrice,
-      taxPrice,
+      taxPrice,      // Ensure this is extracted
       shippingPrice,
+      totalPrice,
+    } = req.body;
+
+    if (orderItems && orderItems.length === 0) {
+      return res.status(400).json({ message: 'No items in collection' });
+    }
+
+    const order = new Order({
+      orderItems: orderItems.map((x) => ({
+        ...x,
+        product: x._id,
+        _id: undefined,
+      })),
+      user: req.user._id,
+      shippingAddress,
+      paymentMethod: paymentMethod || 'Cash on Delivery',
+      itemsPrice,
+      taxPrice: taxPrice || 0, // Fallback to 0 if not provided
+      shippingPrice: shippingPrice || 0,
       totalPrice,
     });
 
     const createdOrder = await order.save();
     res.status(201).json(createdOrder);
   } catch (error) {
-    res.status(500).json({ message: 'Order creation failed', error: error.message });
+    res.status(400).json({ message: 'Order failed', error: error.message });
   }
 };
 

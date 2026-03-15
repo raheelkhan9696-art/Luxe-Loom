@@ -16,6 +16,8 @@ import ProductPage from "./pages/ProductPage";
 import ContactPage from "./pages/ContactPage";
 import OrderHistory from "./pages/OrderHistory";
 import CarePage from "./pages/CarePage";
+import NotFound from "./pages/NotFound";
+import CartPage from "./pages/CartPage";
 
 // Admin & Auth
 import AdminLayout from "./pages/Admin/AdminLayout";
@@ -26,16 +28,40 @@ import AuthLayout from "./pages/Auth/AuthLayout";
 function AppContent() {
   const location = useLocation();
 
+  // Define all paths where the Navbar and Footer SHOULD appear
+  const publicPaths = [
+    "/home", 
+    "/about", 
+    "/shop", 
+    "/collections", 
+    "/product", 
+    "/contact", 
+    "/care", 
+    "/checkout", 
+    "/orders",
+    "/cart"
+  ];
+
+  // hideLayout logic:
+  // We hide the UI if we are at the entry video ("/") 
+  // OR if we are in admin/auth routes 
+  // OR if the current path is NOT in our publicPaths list (which catches the 404 page)
   const hideLayout =
     location.pathname === "/" || 
-    location.pathname.startsWith("/admin") ;
+    location.pathname.startsWith("/admin") ||
+    location.pathname.startsWith("/auth") ||
+    !publicPaths.some(path => location.pathname.startsWith(path));
 
   return (
     <>
+      {/* Conditionally render Navbar based on hideLayout */}
       {!hideLayout && <Navbar />}
 
       <Routes>
+        {/* --- ENTRY POINT --- */}
         <Route path="/" element={<Userintercationpage />} />
+        
+        {/* --- PUBLIC SUITE --- */}
         <Route path="/home" element={<Homepage />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/shop" element={<Shoppage />} />
@@ -45,6 +71,7 @@ function AppContent() {
         <Route path="/care" element={<CarePage />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/orders" element={<OrderHistory />} />
+        <Route path="/cart" element={<CartPage />} />
 
         {/* --- AUTHENTICATION SUITE --- */}
         <Route path="/auth">
@@ -67,10 +94,14 @@ function AppContent() {
           />
         </Route>
 
+        {/* --- ADMINISTRATIVE SUITE --- */}
         <Route path="/admin/*" element={<AdminLayout />} />
-        <Route path="*" element={<Navigate to="/home" replace />} />
+
+        {/* --- CATCH-ALL (404) --- */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
+      {/* Conditionally render Footer based on hideLayout */}
       {!hideLayout && <Footer />}
     </>
   );
