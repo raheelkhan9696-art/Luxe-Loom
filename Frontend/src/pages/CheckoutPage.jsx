@@ -101,14 +101,18 @@ const handleSubmit = async (e) => {
       clearCart(); 
       setTimeout(() => navigate("/orders"), 3000);
     }
-  } catch (err) {
-    // This will now catch the specific error message from your backend
-    const errorMsg = err.response?.data?.message || "Finalization failed";
-    toast.error(errorMsg);
-    console.error("Mongoose Validation Error:", err.response?.data);
-  } finally {
-    setLoading(false);
-  }
+ } catch (err) {
+  // 1. Log the full error to see the structure
+  console.error("Full Protocol Error:", err);
+
+  // 2. Safe extraction of the message
+  const errorMsg = err.response?.data?.message 
+    || err.response?.data 
+    || err.message 
+    || "Finalization failed";
+
+  toast.error(errorMsg);
+}
 };
 
   if (orderSuccess) {
