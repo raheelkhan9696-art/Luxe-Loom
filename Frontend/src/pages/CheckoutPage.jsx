@@ -1,148 +1,234 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ChevronLeft, Lock, CreditCard, Truck } from "lucide-react";
-import { Link } from "react-router-dom";
+import { 
+  ChevronLeft, 
+  Loader2, 
+  CheckCircle2, 
+  ShieldCheck, 
+  Package, 
+  AlertCircle 
+} from "lucide-react";
+import axios from "axios";
+import { useCart } from "../context/cartContext"; 
+import apiPath from "../utils/apiPath";
+
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const CheckoutPage = () => {
+  const navigate = useNavigate();
+  const { cartItems, subtotal, shipping, total, clearCart } = useCart();
+  
+  const [loading, setLoading] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
+
+  const [formData, setFormData] = useState({
+    email: "",
+    firstName: "",
+    lastName: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    country: "Pakistan",
+    paymentMethod: "COD"
+  });
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        // Note: Prefilling email depends on if your JWT payload includes it
+        if (payload.email) setFormData(prev => ({ ...prev, email: payload.email }));
+      } catch (e) {
+        console.error("Token parse error");
+      }
+    }
+  }, []);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!cartItems || cartItems.length === 0) return;
+    
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Session expired. Please login to continue.");
+        return navigate("/login");
+      }
+
+      // Extract User ID from Token
+      const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+      const userId = tokenPayload.id;
+
+      // Aligning payload with 'addOrderItems' backend controller
+      const orderData = {
+        orderItems: cartItems.map(item => ({
+          _id: item._id, // Backend maps this to 'product'
+          name: item.name,
+          qty: Number(item.quantity) || 1,
+          image: item.mainImage || (item.image && item.image[0]) || "https://placehold.co/200x300?text=Luxe",
+          price: Number(item.price)
+        })),
+        shippingAddress: {
+          address: formData.address,
+          city: formData.city,
+          postalCode: formData.postalCode,
+          country: formData.country,
+          phoneno: formData.phoneno || 0 // Ensure this is included
+        },
+        paymentMethod: "Cash on Delivery",
+        itemsPrice: Number(subtotal),
+        shippingPrice: Number(shipping),
+        totalPrice: Number(total),
+      };
+
+      const cleanUrl = `${BASE_URL.replace(/\/$/, "")}/${apiPath.ORDERS.CREATE.replace(/^\//, "")}`;
+
+      const response = await axios.post(cleanUrl, orderData, {
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json" 
+        }
+      });
+
+      // Backend returns 201 Created for new orders
+      if (response.status === 201 || response.data._id) {
+        setOrderSuccess(true);
+        clearCart(); 
+        setTimeout(() => navigate("/orders"), 3000);
+      }
+    } catch (err) {
+      console.error("Order Failed:", err.response?.data || err.message);
+      alert(err.response?.data?.message || "Failed to finalize acquisition.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (orderSuccess) {
+    return (
+      <div className="min-h-screen bg-[#050505] flex items-center justify-center text-center px-6">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+          <CheckCircle2 size={64} className="text-yellow-400 mx-auto mb-6" />
+          <h1 className="text-2xl font-light text-white uppercase tracking-[0.5em] mb-4">Registry Updated</h1>
+          <p className="text-zinc-500 text-[10px] uppercase tracking-[0.2em]">Your acquisition has been recorded.</p>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#050505] text-zinc-300 flex flex-col lg:flex-row">
-      
-      {/* --- Left Side: Information Flow --- */}
-      <div className="flex-1 px-6 md:px-20 py-16 lg:border-r border-white/5">
+      <div className="flex-1 px-6 md:px-20 py-20 lg:border-r border-white/5">
         <div className="max-w-xl ml-auto">
-          {/* Header */}
-          <div className="mb-12">
-            {/* <h1 className="text-2xl font-light tracking-[0.4em] text-white uppercase mb-2">
-              Luxe<span className="italic font-serif font-normal text-zinc-500">&</span>Loom
-            </h1> */}
-            <nav className="flex items-center gap-2 text-[10px] tracking-widest uppercase text-zinc-500">
-              <Link to="/cart" className="hover:text-yellow-400 transition-colors">Cart</Link>
+          <header className="mb-12">
+            <nav className="flex items-center gap-2 text-[10px] tracking-widest uppercase text-zinc-600 mb-8">
+              <Link to="/cart" className="hover:text-yellow-400">Cart</Link>
               <ChevronLeft size={10} className="rotate-180" />
-              <span className="text-white">Information</span>
-              <ChevronLeft size={10} className="rotate-180" />
-              <span>Shipping</span>
-              <ChevronLeft size={10} className="rotate-180" />
-              <span>Payment</span>
+              <span className="text-white font-bold tracking-[0.2em]">Shipping Registry</span>
             </nav>
-          </div>
+          </header>
 
-          <form className="space-y-10">
-            {/* Contact Section */}
-            <section>
-              <div className="flex justify-between items-end mb-4">
-                <h2 className="text-sm font-bold tracking-[0.2em] uppercase text-white">Contact</h2>
-                <button type="button" className="text-[10px] text-yellow-400 underline tracking-widest uppercase">Log in</button>
-              </div>
-              <input 
-                type="text" 
-                placeholder="Email or mobile phone number" 
-                className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm focus:border-yellow-400 outline-none transition-all placeholder:text-zinc-600 rounded-sm"
-              />
-            </section>
+          {cartItems.length === 0 ? (
+            <div className="py-20 text-center border border-dashed border-white/10">
+              <AlertCircle size={32} className="mx-auto mb-4 text-zinc-700" />
+              <p className="text-[10px] uppercase tracking-widest text-zinc-500">Your manifest is empty</p>
+              <Link to="/collection" className="text-yellow-400 text-[10px] uppercase mt-4 inline-block underline">Return to Shop</Link>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-10">
+              <section className="space-y-4">
+                <h2 className="text-[10px] font-bold tracking-[0.4em] uppercase text-white opacity-50">Contact Identity</h2>
+                <input 
+                  name="email" required value={formData.email} onChange={handleInputChange} 
+                  type="email" placeholder="EMAIL ADDRESS" 
+                  className="w-full bg-white/5 border border-white/10 px-5 py-4 text-xs focus:border-yellow-500 outline-none rounded-sm transition-all" 
+                />
+              </section>
 
-            {/* Delivery Section */}
-            <section>
-              <h2 className="text-sm font-bold tracking-[0.2em] uppercase text-white mb-4">Shipping Address</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                  <select className="w-full bg-white/5 border border-white/10 px-4 py-3 text-sm focus:border-yellow-400 outline-none rounded-sm">
-                    <option>Pakistan</option>
-                    <option>United Kingdom</option>
-                    <option>United States</option>
-                  </select>
+              <section className="space-y-4">
+                <h2 className="text-[10px] font-bold tracking-[0.4em] uppercase text-white opacity-50">Shipping Destination</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <input name="firstName" required onChange={handleInputChange} type="text" placeholder="FIRST NAME" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none" />
+                  <input name="lastName" required onChange={handleInputChange} type="text" placeholder="LAST NAME" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none" />
+                  <input name="address" required onChange={handleInputChange} type="text" placeholder="STREET ADDRESS" className="col-span-2 bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none" />
+                  <input name="city" required onChange={handleInputChange} type="text" placeholder="CITY" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none" />
+                  <input name="postalCode" required onChange={handleInputChange} type="text" placeholder="POSTAL CODE" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none" />
+                  <input name="phoneno" required onChange={handleInputChange} type="text" placeholder="PHONE NUMBER" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none" />
                 </div>
-                <input type="text" placeholder="First name" className="bg-white/5 border border-white/10 px-4 py-3 text-sm focus:border-yellow-400 outline-none rounded-sm" />
-                <input type="text" placeholder="Last name" className="bg-white/5 border border-white/10 px-4 py-3 text-sm focus:border-yellow-400 outline-none rounded-sm" />
-                <input type="text" placeholder="Address" className="col-span-2 bg-white/5 border border-white/10 px-4 py-3 text-sm focus:border-yellow-400 outline-none rounded-sm" />
-                <input type="text" placeholder="Apartment, suite, etc. (optional)" className="col-span-2 bg-white/5 border border-white/10 px-4 py-3 text-sm focus:border-yellow-400 outline-none rounded-sm" />
-                <input type="text" placeholder="City" className="bg-white/5 border border-white/10 px-4 py-3 text-sm focus:border-yellow-400 outline-none rounded-sm" />
-                <input type="text" placeholder="Postal code" className="bg-white/5 border border-white/10 px-4 py-3 text-sm focus:border-yellow-400 outline-none rounded-sm" />
-              </div>
-            </section>
+              </section>
 
-            {/* Payment Section - Mapped to the image style but premium */}
-            <section className="bg-white/[0.02] border border-white/5 p-6 rounded-sm">
-              <div className="flex items-center gap-3 mb-4">
-                <CreditCard size={18} className="text-yellow-400" />
-                <h2 className="text-sm font-bold tracking-[0.2em] uppercase text-white">Payment Method</h2>
-              </div>
-              <div className="flex items-center justify-between p-4 border border-yellow-400/50 bg-yellow-400/5 rounded-sm">
-                <span className="text-sm">Cash on Delivery (COD)</span>
-                <div className="w-4 h-4 rounded-full border-4 border-yellow-400 bg-black" />
-              </div>    
-            </section>
+              <section className="bg-white/[0.02] border border-white/5 p-6 flex items-center justify-between">
+                 <div className="flex items-center gap-4">
+                   <Package size={18} className="text-yellow-400" />
+                   <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white">Cash on Delivery (COD)</span>
+                 </div>
+                 <div className="w-4 h-4 rounded-full border-4 border-yellow-400 bg-black" />
+              </section>
 
-            <button className="w-full bg-white text-black py-5 text-xs font-bold tracking-[0.3em] uppercase hover:bg-yellow-400 transition-colors duration-500 flex items-center justify-center gap-2 group">
-              Complete Order
-              <ChevronLeft size={14} className="rotate-180 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </form>
-          
-          <div className="mt-8 pt-6 border-t border-white/5 flex gap-6 text-[9px] tracking-widest text-zinc-600 uppercase">
-            <span>Refund Policy</span>
-            <span>Shipping Policy</span>
-            <span>Privacy Policy</span>
-          </div>
+              <button type="submit" disabled={loading} className="w-full bg-white text-black py-6 text-[10px] font-bold tracking-[0.5em] uppercase hover:bg-yellow-400 transition-all duration-500 disabled:opacity-20">
+                {loading ? <Loader2 className="animate-spin mx-auto" size={18} /> : "Finalize Order"}
+              </button>
+            </form>
+          )}
         </div>
       </div>
 
-      {/* --- Right Side: Order Summary --- */}
-      <div className="w-full lg:w-[450px] bg-zinc-900/30 backdrop-blur-3xl px-6 md:px-12 py-16">
+      <div className="w-full lg:w-[480px] bg-[#080808] px-6 md:px-12 py-20">
         <div className="max-w-sm mx-auto">
-          <h2 className="text-sm font-bold tracking-[0.2em] uppercase text-white mb-8">Order Summary</h2>
+          <h2 className="text-[10px] font-bold tracking-[0.4em] uppercase text-white mb-10 pb-4 border-b border-white/5">Order Summary</h2>
+          <div className="space-y-8 mb-10 max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar">
+            {cartItems.map((item, idx) => (
+              <div key={`${item._id}-${idx}`} className="flex items-center gap-6 group">
+                <div className="relative shrink-0">
+                  <div className="w-20 h-24 bg-zinc-900 border border-white/5 overflow-hidden">
+                    <img 
+                      src={item.mainImage || (item.image && item.image[0]) || "https://placehold.co/200x300?text=Luxe"} 
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" 
+                      alt={item.name} 
+                    />
+                  </div>
+                  <span className="absolute -top-2 -right-2 w-5 h-5 bg-white text-black text-[10px] flex items-center justify-center rounded-full font-bold">
+                    {item.quantity}
+                  </span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">{item.name}</h3>
+                  <p className="text-[9px] text-zinc-600 mt-1 uppercase tracking-widest">Size: {item.selectedSize || "N/A"}</p>
+                </div>
+                <span className="text-xs font-mono text-white">Rs {item.price?.toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="pt-8 border-t border-white/5 space-y-4">
+            <div className="flex justify-between text-[10px] tracking-widest uppercase text-zinc-500">
+              <span>Subtotal</span>
+              <span className="text-white font-mono">Rs {subtotal.toLocaleString()}.00</span>
+            </div>
+            <div className="flex justify-between text-[10px] tracking-widest uppercase text-zinc-500">
+              <span>Shipping</span>
+              <span className="text-white font-mono">{shipping === 0 ? "Complimentary" : `Rs ${shipping}.00`}</span>
+            </div>
+            <div className="flex justify-between items-center pt-8 border-t border-white/5">
+              <span className="text-xs font-bold tracking-[0.3em] uppercase text-white">Total</span>
+              <span className="text-2xl font-mono text-yellow-500">Rs {total.toLocaleString()}</span>
+            </div>
+          </div>
           
-          {/* Cart Item */}
-          <div className="flex items-center gap-4 mb-8">
-            <div className="relative">
-              <div className="w-16 h-20 bg-zinc-800 rounded-sm overflow-hidden border border-white/10">
-                <img src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=200" alt="product" className="w-full h-full object-cover grayscale" />
-              </div>
-              <span className="absolute -top-2 -right-2 w-5 h-5 bg-zinc-700 text-[10px] text-white flex items-center justify-center rounded-full border border-black">1</span>
-            </div>
-            <div className="flex-1">
-              <h3 className="text-[11px] font-bold text-white uppercase tracking-wider leading-tight">Heritage Automatic / Matte Black</h3>
-              <p className="text-[10px] text-zinc-500 mt-1 uppercase tracking-widest">42mm / Steel</p>
-            </div>
-            <span className="text-xs font-mono text-white">Rs 1,500.00</span>
-          </div>
-
-          {/* Discount Code */}
-          <div className="flex gap-2 mb-8">
-            <input 
-              type="text" 
-              placeholder="Discount code" 
-              className="flex-1 bg-transparent border border-white/10 px-4 py-2.5 text-xs focus:border-yellow-400 outline-none transition-all rounded-sm"
-            />
-            <button className="px-6 py-2.5 bg-zinc-800 text-white text-[10px] font-bold tracking-widest uppercase hover:bg-zinc-700 transition-colors rounded-sm">Apply</button>
-          </div>
-
-          {/* Totals */}
-          <div className="space-y-3 pt-6 border-t border-white/5">
-            <div className="flex justify-between text-xs tracking-widest uppercase">
-              <span className="text-zinc-500">Subtotal</span>
-              <span className="text-white">Rs 1,500.00</span>
-            </div>
-            <div className="flex justify-between text-xs tracking-widest uppercase">
-              <span className="text-zinc-500">Shipping</span>
-              <span className="text-white">Rs 99.00</span>
-            </div>
-            <div className="flex justify-between items-center pt-4 border-t border-white/5">
-              <span className="text-sm font-bold tracking-[0.2em] uppercase text-white">Total</span>
-              <div className="text-right">
-                <span className="text-[10px] text-zinc-500 mr-2 uppercase">PKR</span>
-                <span className="text-xl font-mono text-yellow-400">Rs 1,599.00</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-12 p-4 border border-white/5 bg-white/[0.01] flex items-center gap-4">
-             <div className="w-10 h-10 flex items-center justify-center bg-zinc-800 rounded-full">
-                <Lock size={16} className="text-zinc-500" />
-             </div>
-             <div>
-                <p className="text-[10px] font-bold text-white uppercase tracking-widest">Secure Checkout</p>
-                <p className="text-[9px] text-zinc-500 leading-tight">All transactions are encrypted and secure.</p>
-             </div>
+          <div className="mt-16 flex items-center gap-4 opacity-30 hover:opacity-100 transition-opacity">
+            <ShieldCheck size={20} className="text-yellow-500" />
+            <p className="text-[8px] uppercase tracking-[0.3em] leading-tight font-light">
+              Secured Acquisition Protocol <br/> All Transactions Encrypted
+            </p>
           </div>
         </div>
       </div>

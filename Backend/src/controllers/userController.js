@@ -47,6 +47,15 @@ export const registerUser = async (req, res) => {
   }
 };
 
+
+export const allUsers = async (req, res) => {
+  try {
+    const users = await User.find({}).sort({ createdAt: -1 });
+    res.json({ success: true, users });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 // --- 2. LOGIN USER ---
 // @desc    Auth user & get token
 // @route   POST /api/auth/login

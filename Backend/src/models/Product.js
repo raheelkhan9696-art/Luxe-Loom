@@ -9,7 +9,6 @@ const ProductSchema = new mongoose.Schema({
   slug: { 
     type: String, 
     unique: true 
-    // Removed 'required: true' here because we generate it automatically before validation
   },
   description: { 
     type: String, 
@@ -22,11 +21,15 @@ const ProductSchema = new mongoose.Schema({
   category: { 
     type: String, 
     required: true,
-    enum: ['Watches', 'Jewelry', 'Accessories', 'Archival']
+    enum: ['Watches', 'Jewelry', 'Accessories', 'Archival', 'High Jewelry'] // Added High Jewelry for consistency
   },
   material: { 
     type: String, 
-    enum: ['18K Gold', '24K Gold', 'Platinum', 'Sterling Silver', 'Stainless Steel'],
+    // FIX: Updated Enum to allow your React state values or remove enum for total flexibility
+    enum: [
+      '18K Gold', '24K Gold', 'Platinum', 'Sterling Silver', 
+      'Stainless Steel', 'Gold / Steel', '18K Gold & Steel'
+    ],
     required: true 
   },
   price: { 
@@ -61,16 +64,14 @@ const ProductSchema = new mongoose.Schema({
 });
 
 // --- MODERN SLUG LOGIC ---
-// We use 'save' instead of 'validate' for better reliability
-// We remove 'next' and use async/await style
 ProductSchema.pre('save', async function() {
   if (this.isModified('name') || this.isNew) {
     this.slug = this.name
       .toLowerCase()
       .trim()
-      .replace(/[^\w\s-]/g, '') // Remove special chars
-      .replace(/[\s_-]+/g, '-')  // Replace spaces/underscores with -
-      .replace(/^-+|-+$/g, '');   // Trim - from ends
+      .replace(/[^\w\s-]/g, '') 
+      .replace(/[\s_-]+/g, '-')  
+      .replace(/^-+|-+$/g, '');   
   }
 });
 

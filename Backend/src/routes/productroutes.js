@@ -5,6 +5,7 @@ import {
   deleteProduct,
   updateProduct,
   createProduct,
+  getProductById,
 } from "../controllers/productController.js";
 // FIX 1: Ensure the path matches your folder name exactly (middlewares vs middleware)
 // FIX 2: Ensure the filename matches (Authmiddleware.js vs authMiddleware.js)
@@ -16,6 +17,8 @@ const router = express.Router();
 
 // --- Public Routes ---
 router.get("/", getProducts);
+// Ensure the parameter name matches what you use in the controller
+router.get('/:id', getProductById);
 router.get("/slug/:slug", getProductBySlug);
 
 // --- Admin Only Routes ---

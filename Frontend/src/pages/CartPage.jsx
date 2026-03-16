@@ -2,21 +2,24 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trash2, Minus, Plus, ArrowRight } from "lucide-react";
+import { useCart } from "../context/cartContext"; // Importing your actual context
 
 const CartPage = () => {
-  // Mock data - Replace with your Redux or Context state later
-  const cartItems = [
-    {
-      id: 1,
-      name: "Ethereal Gold Band",
-      category: "Jewelry",
-      price: 1200,
-      quantity: 1,
-      image: "https://images.unsplash.com/photo-1605100804763-247f67b3f416?auto=format&fit=crop&q=80&w=400",
-    }
-  ];
+  // Use the real data and functions from your CartContext
+  const { cartItems, addToCart, removeFromCart, subtotal, shipping, total } = useCart();
 
-  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  // Handler to decrease quantity
+  const handleDecrease = (item) => {
+    if (item.quantity > 1) {
+      // Adding -1 quantity to the current item
+      addToCart(item, -1, item.selectedSize);
+    }
+  };
+
+  // Handler to increase quantity
+  const handleIncrease = (item) => {
+    addToCart(item, 1, item.selectedSize);
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white pt-32 pb-20 px-6 md:px-12">
@@ -27,7 +30,7 @@ const CartPage = () => {
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-light tracking-tighter mb-4"
+            className="text-4xl md:text-5xl font-light tracking-tighter mb-4 uppercase"
           >
             Your Selection
           </motion.h1>
@@ -39,10 +42,10 @@ const CartPage = () => {
             
             {/* --- Items List --- */}
             <div className="lg:col-span-8 space-y-8">
-              <AnimatePresence>
+              <AnimatePresence mode="popLayout">
                 {cartItems.map((item) => (
                   <motion.div
-                    key={item.id}
+                    key={`${item._id}-${item.selectedSize}`} // Unique key for item + size
                     layout
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -52,7 +55,7 @@ const CartPage = () => {
                     {/* Product Image */}
                     <div className="w-full md:w-40 h-48 bg-zinc-900 overflow-hidden rounded-sm">
                       <img 
-                        src={item.image} 
+                        src={item.mainImage} // Using backend field name
                         alt={item.name} 
                         className="w-full h-full object-cover opacity-80 hover:scale-110 transition-transform duration-700"
                       />
@@ -63,21 +66,37 @@ const CartPage = () => {
                       <p className="text-[10px] uppercase tracking-[0.3em] text-yellow-600/80 font-medium">
                         {item.category}
                       </p>
-                      <h3 className="text-xl font-light tracking-tight">{item.name}</h3>
-                      <p className="text-zinc-500 font-mono text-sm">${item.price.toLocaleString()}</p>
+                      <h3 className="text-xl font-light tracking-tight uppercase">{item.name}</h3>
+                      <p className="text-zinc-500 font-mono text-xs italic">Variant: {item.selectedSize || "Standard"}</p>
+                      <p className="text-zinc-400 font-mono text-sm">Rs {item.price.toLocaleString()}</p>
                     </div>
 
                     {/* Quantity Controls */}
                     <div className="flex items-center gap-6 border border-white/10 px-4 py-2 rounded-full">
-                      <button className="opacity-40 hover:opacity-100 transition-opacity"><Minus size={14} /></button>
+                      <button 
+                        onClick={() => handleDecrease(item)}
+                        className="opacity-40 hover:opacity-100 transition-opacity"
+                      >
+                        <Minus size={14} />
+                      </button>
                       <span className="text-sm font-mono">{item.quantity}</span>
-                      <button className="opacity-40 hover:opacity-100 transition-opacity"><Plus size={14} /></button>
+                      <button 
+                        onClick={() => handleIncrease(item)}
+                        className="opacity-40 hover:opacity-100 transition-opacity"
+                      >
+                        <Plus size={14} />
+                      </button>
                     </div>
 
                     {/* Total & Delete */}
-                    <div className="flex flex-col items-center md:items-end gap-4 min-w-[100px]">
-                      <p className="font-mono text-lg">${(item.price * item.quantity).toLocaleString()}</p>
-                      <button className="text-zinc-600 hover:text-red-400 transition-colors">
+                    <div className="flex flex-col items-center md:items-end gap-4 min-w-[120px]">
+                      <p className="font-mono text-lg text-yellow-500">
+                        Rs {(item.price * item.quantity).toLocaleString()}
+                      </p>
+                      <button 
+                        onClick={() => removeFromCart(item._id, item.selectedSize)}
+                        className="text-zinc-600 hover:text-red-400 transition-colors"
+                      >
                         <Trash2 size={18} strokeWidth={1.5} />
                       </button>
                     </div>
@@ -89,23 +108,25 @@ const CartPage = () => {
             {/* --- Summary Sidebar --- */}
             <div className="lg:col-span-4">
               <div className="bg-zinc-900/30 backdrop-blur-md border border-white/5 p-8 rounded-sm sticky top-32">
-                <h3 className="text-xs uppercase tracking-[0.4em] mb-8 text-zinc-400">Order Summary</h3>
+                <h3 className="text-xs uppercase tracking-[0.4em] mb-8 text-zinc-400 font-bold">Billing Summary</h3>
                 
                 <div className="space-y-4 mb-8">
                   <div className="flex justify-between text-sm font-light">
-                    <span className="text-zinc-500 tracking-wide">Subtotal</span>
-                    <span className="font-mono">${subtotal.toLocaleString()}</span>
+                    <span className="text-zinc-500 tracking-wide uppercase">Subtotal</span>
+                    <span className="font-mono text-zinc-300">Rs {subtotal.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm font-light">
-                    <span className="text-zinc-500 tracking-wide">Shipping</span>
-                    <span className="text-xs uppercase tracking-widest text-yellow-600/80">Complimentary</span>
+                    <span className="text-zinc-500 tracking-wide uppercase">Shipping</span>
+                    <span className="text-[10px] uppercase tracking-widest text-yellow-600/80 font-bold">
+                      {shipping === 0 ? "Complimentary" : `Rs ${shipping}`}
+                    </span>
                   </div>
                 </div>
 
                 <div className="pt-6 border-t border-white/10 mb-10 flex justify-between items-end">
-                  <span className="text-sm tracking-[0.2em] uppercase">Total</span>
-                  <span className="text-2xl font-light tracking-tighter text-yellow-500">
-                    ${subtotal.toLocaleString()}
+                  <span className="text-sm tracking-[0.2em] uppercase font-bold">Total</span>
+                  <span className="text-2xl font-light tracking-tighter text-yellow-500 font-mono">
+                    Rs {total.toLocaleString()}
                   </span>
                 </div>
 
@@ -131,7 +152,7 @@ const CartPage = () => {
             animate={{ opacity: 1 }} 
             className="py-20 text-center"
           >
-            <p className="text-zinc-500 font-light italic mb-10">Your collection is currently empty.</p>
+            <p className="text-zinc-500 font-light italic mb-10 tracking-widest">Your collection is currently empty.</p>
             <Link to="/shop" className="text-[10px] tracking-[0.5em] uppercase border-b border-yellow-600 pb-2 hover:text-yellow-500 transition-colors">
               Begin Exploring
             </Link>

@@ -1,160 +1,289 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { ArrowLeft, Printer, Truck, MapPin, CreditCard, Mail, Phone } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import apiPath from "../../utils/apiPath";
+import { 
+  Loader2, 
+  Eye, 
+  RefreshCcw, 
+  ArrowLeft, 
+  Package, 
+  User, 
+  MapPin, 
+  CreditCard,
+  Hash,
+  Truck
+} from "lucide-react";
+import { toast } from "react-hot-toast";
 
-const OrdersView = ({ orderId = "LX-99281", onBack }) => {
-  // Mock data based on your order history and checkout structure
-  const orderData = {
-    id: orderId,
-    date: "March 12, 2026",
-    status: "Processing",
-    customer: {
-      name: "Urooj S.",
-      email: "urooj.s@example.com",
-      phone: "+92 300 1234567",
-      address: "House 42, Street 5, Sector F-7/2, Islamabad, Pakistan"
-    },
-    items: [
-      { name: "Cosmograph Daytona", sku: "LL-WAT-001", price: 1599.00, qty: 1, image: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=200" },
-      { name: "Heritage yellow-400 Ring", sku: "LL-JWL-042", price: 850.00, qty: 1, image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=200" }
-    ],
-    payment: {
-      method: "Cash on Delivery (COD)",
-      subtotal: 2449.00,
-      shipping: 99.00,
-      total: 2548.00
+const BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "");
+
+const OrderView = () => {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [updatingId, setUpdatingId] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [detailsLoading, setDetailsLoading] = useState(false);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      const { data } = await axios.get(`${BASE_URL}${apiPath.ORDERS.GET_ALL}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setOrders(Array.isArray(data) ? data : []);
+    } catch (err) {
+      toast.error("Archive connection failed");
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <motion.div 
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      className="space-y-10"
-    >
-      {/* --- Action Bar --- */}
-      <div className="flex justify-between items-center pb-8 border-b border-white/5">
-        <button 
-          onClick={onBack}
-          className="flex items-center gap-2 text-[10px] tracking-[0.3em] uppercase text-zinc-500 hover:text-white transition-colors"
-        >
-          <ArrowLeft size={14} /> Back to Orders
-        </button>
-        <div className="flex gap-4">
-          <button className="p-3 border border-white/10 hover:bg-white/5 transition-all text-zinc-400">
-            <Printer size={16} />
-          </button>
-          <button className="bg-white text-black px-6 py-3 text-[10px] font-bold tracking-widest uppercase hover:bg-yellow-400 transition-colors">
-            Update Status
-          </button>
-        </div>
-      </div>
+  useEffect(() => { fetchOrders(); }, []);
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        
-        {/* --- Left Column: Items & Timeline --- */}
-        <div className="lg:col-span-2 space-y-10">
-          {/* Order Items */}
-          <section className="bg-white/[0.02] border border-white/5 p-8 rounded-sm">
-            <h3 className="text-[10px] tracking-[0.4em] uppercase text-yellow-400 mb-8 font-bold">Consignment Details</h3>
-            <div className="space-y-6">
-              {orderData.items.map((item, i) => (
-                <div key={i} className="flex items-center justify-between py-4 border-b border-white/5 last:border-0">
-                  <div className="flex gap-6 items-center">
-                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover grayscale opacity-60 rounded-sm" />
-                    <div>
-                      <p className="text-sm text-white uppercase tracking-wider font-light">{item.name}</p>
-                      <p className="text-[9px] text-zinc-600 tracking-widest uppercase mt-1">SKU: {item.sku}</p>
+  const handleViewDetails = async (id) => {
+    try {
+      setDetailsLoading(true);
+      const token = localStorage.getItem("token");
+      const { data } = await axios.get(`${BASE_URL}${apiPath.ORDERS.GET_BY_ID(id)}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSelectedOrder(data);
+    } catch (err) {
+      toast.error("Failed to retrieve manifest details");
+    } finally {
+      setDetailsLoading(false);
+    }
+  };
+
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      setUpdatingId(orderId);
+      const token = localStorage.getItem("token");
+      await axios.patch(`${BASE_URL}${apiPath.ADMIN.UPDATE_ORDER_STATUS(orderId)}`, 
+        { status: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setOrders(prev => prev.map(o => o._id === orderId ? { ...o, status: newStatus } : o));
+      if (selectedOrder && selectedOrder._id === orderId) {
+        setSelectedOrder(prev => ({ ...prev, status: newStatus }));
+      }
+      toast.success(`Registry updated to ${newStatus}`);
+    } catch (err) {
+      toast.error("Status transition failed");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
+  if (loading || detailsLoading) return (
+    <div className="py-40 flex flex-col items-center justify-center gap-4">
+      <Loader2 className="animate-spin text-yellow-400" size={30} />
+      <p className="text-[10px] tracking-[0.5em] uppercase text-zinc-500 font-bold">Accessing Secure Vault</p>
+    </div>
+  );
+
+  // --- DETAIL VIEW (RESPONSIVE) ---
+  if (selectedOrder) {
+    return (
+      <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-white/5 pb-6 gap-4">
+          <button 
+            onClick={() => setSelectedOrder(null)}
+            className="flex items-center gap-2 text-[10px] tracking-widest uppercase text-zinc-500 hover:text-white transition-colors group"
+          >
+            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> Back to Registry
+          </button>
+          <div className="w-full md:w-auto flex justify-between md:block items-center">
+            <p className="text-[9px] uppercase text-zinc-600 tracking-widest mb-1 md:text-right">Status Protocol</p>
+            <span className={`px-3 py-1 text-[10px] uppercase font-bold border ${
+              selectedOrder.status === 'Delivered' ? 'border-green-500 text-green-500' : 'border-yellow-500 text-yellow-400'
+            }`}>
+              {selectedOrder.status}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="bg-white/[0.02] border border-white/5 p-4 md:p-8 rounded-sm">
+              <h2 className="text-[10px] tracking-[0.3em] uppercase text-zinc-500 mb-8 flex items-center gap-2">
+                <Package size={14} /> Item Manifest
+              </h2>
+              <div className="space-y-6">
+                {selectedOrder.orderItems.map((item, idx) => (
+                  <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center gap-6 pb-6 border-b border-white/5 last:border-0">
+                    <div className="w-full sm:w-20 h-40 sm:h-24 bg-zinc-900 border border-white/5 overflow-hidden">
+                       <img src={item.image} alt={item.name} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-sm text-white uppercase tracking-wider font-light">{item.name}</h4>
+                      <p className="text-[10px] text-zinc-500 mt-1 uppercase">Quantity: {item.qty}</p>
+                    </div>
+                    <div className="w-full sm:w-auto flex justify-between sm:block border-t border-white/5 sm:border-0 pt-4 sm:pt-0">
+                      <p className="text-[9px] text-zinc-600 uppercase mb-1 sm:text-right">Unit Price</p>
+                      <p className="font-mono text-white text-xs sm:text-right">Rs {item.price?.toLocaleString()}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs text-zinc-400">Qty: {item.qty}</p>
-                    <p className="text-sm font-mono text-white mt-1">Rs {item.price.toLocaleString()}</p>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </section>
+          </div>
 
-          {/* Order Timeline */}
-          <section className="bg-white/[0.02] border border-white/5 p-8 rounded-sm">
-            <h3 className="text-[10px] tracking-[0.4em] uppercase text-yellow-400 mb-8 font-bold">Lifecycle</h3>
-            <div className="relative pl-8 space-y-8 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-px before:bg-white/10">
-              <div className="relative flex flex-col gap-1">
-                <div className="absolute -left-8 top-1 w-6 h-6 rounded-full bg-yellow-400/20 border border-yellow-400 flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 rounded-full bg-yellow-400" />
-                </div>
-                <p className="text-[10px] text-white font-bold uppercase tracking-widest">Order Placed</p>
-                <p className="text-[9px] text-zinc-600 uppercase">March 12, 2026 — 10:45 AM</p>
+          <div className="space-y-6">
+            <div className="bg-zinc-950 border border-white/10 p-6 md:p-8 rounded-sm space-y-4 shadow-2xl">
+              <h3 className="text-[10px] tracking-[0.3em] uppercase text-yellow-500 font-bold mb-4">Financial Details</h3>
+              <div className="flex justify-between items-end text-[10px] uppercase text-zinc-500">
+                <span>Registry Total</span>
+                <span className="text-xl font-mono text-white italic">Rs {selectedOrder.totalPrice?.toLocaleString()}</span>
               </div>
-              <div className="relative flex flex-col gap-1 opacity-40">
-                <div className="absolute -left-8 top-1 w-6 h-6 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 rounded-full bg-zinc-700" />
-                </div>
-                <p className="text-[10px] text-white font-bold uppercase tracking-widest">Awaiting Logistics</p>
-                <p className="text-[9px] text-zinc-600 uppercase">Pending Verification</p>
+              <p className="text-[8px] text-zinc-600 uppercase pt-4 border-t border-white/5 flex items-center gap-2">
+                <CreditCard size={10} /> Method: {selectedOrder.paymentMethod}
+              </p>
+            </div>
+
+            <div className="bg-white/[0.02] border border-white/5 p-6 md:p-8 rounded-sm space-y-8">
+              <div className="space-y-2">
+                <p className="text-[9px] uppercase tracking-[0.2em] text-zinc-600 flex items-center gap-2"><User size={12}/> Client Profile</p>
+                <p className="text-sm text-zinc-300 uppercase tracking-tighter">{selectedOrder.user?.name || selectedOrder.shippingAddress?.name}</p>
+                <p className="text-[10px] text-zinc-500 lowercase font-mono break-all">{selectedOrder.user?.email}</p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-[9px] uppercase tracking-[0.2em] text-zinc-600 flex items-center gap-2"><MapPin size={12}/> Delivery Coordinates</p>
+                <p className="text-[10px] text-zinc-400 uppercase leading-relaxed font-light">
+                  {selectedOrder.shippingAddress?.address}<br/>
+                  {selectedOrder.shippingAddress?.phoneno && `Contact: ${selectedOrder.shippingAddress.phoneno}`}<br/>
+                  {selectedOrder.shippingAddress?.city}, {selectedOrder.shippingAddress?.postalCode}
+                </p>
               </div>
             </div>
-          </section>
+          </div>
         </div>
-
-        {/* --- Right Column: Customer & Payment --- */}
-        <div className="space-y-10">
-          {/* Customer Info */}
-          <section className="bg-white/[0.02] border border-white/5 p-8 rounded-sm space-y-6">
-            <h3 className="text-[10px] tracking-[0.4em] uppercase text-yellow-400 font-bold">Client Profile</h3>
-            <div className="space-y-4">
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-white/5 rounded-sm"><Mail size={14} className="text-zinc-500" /></div>
-                <div>
-                  <p className="text-[9px] text-zinc-600 uppercase tracking-widest mb-1">Email</p>
-                  <p className="text-xs text-white underline cursor-pointer">{orderData.customer.email}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-white/5 rounded-sm"><Phone size={14} className="text-zinc-500" /></div>
-                <div>
-                  <p className="text-[9px] text-zinc-600 uppercase tracking-widest mb-1">Phone</p>
-                  <p className="text-xs text-white">{orderData.customer.phone}</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-white/5 rounded-sm"><MapPin size={14} className="text-zinc-500" /></div>
-                <div>
-                  <p className="text-[9px] text-zinc-600 uppercase tracking-widest mb-1">Shipping Destination</p>
-                  <p className="text-xs text-white leading-relaxed">{orderData.customer.address}</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Payment Summary */}
-          <section className="bg-white/[0.02] border border-white/5 p-8 rounded-sm space-y-6">
-            <h3 className="text-[10px] tracking-[0.4em] uppercase text-yellow-400 font-bold">Financial Summary</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between text-xs">
-                <span className="text-zinc-500 uppercase tracking-widest">Subtotal</span>
-                <span className="font-mono text-white">Rs {orderData.payment.subtotal.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-zinc-500 uppercase tracking-widest">Shipping</span>
-                <span className="font-mono text-white">Rs {orderData.payment.shipping.toLocaleString()}</span>
-              </div>
-              <div className="pt-3 mt-3 border-t border-white/5 flex justify-between">
-                <span className="text-[10px] text-white font-bold uppercase tracking-widest">Total</span>
-                <span className="text-lg font-mono text-yellow-400 font-bold underline decoration-double">Rs {orderData.payment.total.toLocaleString()}</span>
-              </div>
-            </div>
-            <div className="mt-6 p-4 border border-white/5 bg-white/[0.01] flex items-center gap-3">
-              <CreditCard size={16} className="text-zinc-600" />
-              <p className="text-[9px] text-zinc-500 uppercase tracking-[0.2em]">{orderData.payment.method}</p>
-            </div>
-          </section>
-        </div>
-
       </div>
-    </motion.div>
+    );
+  }
+
+  // --- LIST VIEW (RESPONSIVE) ---
+  return (
+    <div className="space-y-4">
+      {/* Desktop Table */}
+      <div className="hidden md:block border border-white/5 bg-white/[0.01] rounded-sm overflow-hidden animate-in fade-in duration-1000">
+        <table className="w-full text-left border-collapse">
+          <thead className="bg-white/5 text-[10px] uppercase tracking-widest text-zinc-500">
+            <tr>
+              <th className="p-5 font-bold">ID</th>
+              <th className="p-5 font-bold">Client</th>
+              <th className="p-5 font-bold text-center">Valuation</th>
+              <th className="p-5 font-bold">Status Update</th>
+              <th className="p-5 font-bold text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody className="text-xs">
+            {orders.map((order) => (
+              <tr key={order._id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
+                <td className="p-5 font-mono text-white">
+                  <span className="text-zinc-700 font-bold">#</span>{order._id.slice(-6).toUpperCase()}
+                </td>
+                <td className="p-5 text-zinc-400 uppercase tracking-tighter">
+                  {order.user?.name || "Private Client"}
+                </td>
+                <td className="p-5 text-yellow-400 font-mono italic text-center">
+                  Rs {order.totalPrice?.toLocaleString()}
+                </td>
+                <td className="p-5">
+                  {updatingId === order._id ? (
+                      <div className="flex items-center gap-2 text-[9px] text-yellow-400 px-3 py-1.5 animate-pulse font-bold tracking-widest border border-yellow-500/20 bg-yellow-500/5">
+                          <RefreshCcw size={10} className="animate-spin" /> SYNCING
+                      </div>
+                  ) : (
+                      <select 
+                          value={order.status}
+                          onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                          className={`bg-black border border-white/10 text-[9px] uppercase font-bold tracking-widest px-3 py-1.5 rounded-sm outline-none cursor-pointer transition-all hover:border-yellow-400/50 ${order.status === 'Delivered' ? 'text-green-500' : 'text-yellow-400'}`}
+                      >
+                          <option value="Processing">Processing</option>
+                          <option value="Shipped">Shipped</option>
+                          <option value="Delivered">Delivered</option>
+                          <option value="Cancelled">Cancelled</option>
+                      </select>
+                  )}
+                </td>
+                <td className="p-5 text-right">
+                  <button onClick={() => handleViewDetails(order._id)} className="p-2.5 border border-white/5 hover:bg-white/10 text-zinc-500 hover:text-white transition-all rounded-sm inline-flex items-center gap-2 group-hover:border-white/20">
+                    <Eye size={14} />
+                    <span className="text-[9px] uppercase tracking-widest">Manifest</span>
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile Card List */}
+      <div className="md:hidden space-y-4">
+        {orders.map((order) => (
+          <div key={order._id} className="bg-white/[0.02] border border-white/5 p-5 rounded-sm space-y-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-[9px] text-zinc-600 flex items-center gap-1 uppercase tracking-tighter mb-1">
+                  <Hash size={10} /> Record ID
+                </p>
+                <p className="font-mono text-white text-sm">#{order._id.slice(-8).toUpperCase()}</p>
+              </div>
+              <button 
+                onClick={() => handleViewDetails(order._id)}
+                className="p-3 bg-white/5 border border-white/10 rounded-sm text-zinc-400"
+              >
+                <Eye size={16} />
+              </button>
+            </div>
+
+            <div className="flex justify-between items-center bg-black/40 p-3 rounded-sm border border-white/5">
+              <div className="flex flex-col">
+                <span className="text-[8px] uppercase text-zinc-500 mb-1">Client</span>
+                <span className="text-[10px] text-zinc-300 uppercase truncate max-w-[120px]">
+                  {order.user?.name || "Guest"}
+                </span>
+              </div>
+              <div className="text-right">
+                <span className="text-[8px] uppercase text-zinc-500 mb-1 block">Total Valuation</span>
+                <span className="text-xs text-yellow-400 font-mono">Rs {order.totalPrice?.toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <p className="text-[8px] uppercase text-zinc-600 mb-2 flex items-center gap-1">
+                <Truck size={10}/> Registry Status
+              </p>
+              {updatingId === order._id ? (
+                <div className="w-full py-3 bg-yellow-500/5 text-yellow-400 text-[10px] font-bold text-center animate-pulse tracking-[0.3em]">
+                  UPDATING VAULT...
+                </div>
+              ) : (
+                <select 
+                  value={order.status}
+                  onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                  className={`w-full bg-black border border-white/10 text-[10px] uppercase font-bold tracking-[0.2em] py-3 px-4 rounded-sm outline-none ${order.status === 'Delivered' ? 'text-green-500' : 'text-yellow-400'}`}
+                >
+                  <option value="Processing">Processing</option>
+                  <option value="Shipped">Shipped</option>
+                  <option value="Delivered">Delivered</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {orders.length === 0 && (
+        <div className="py-20 text-center border border-dashed border-white/5 rounded-sm">
+          <p className="text-[10px] text-zinc-600 uppercase tracking-widest italic opacity-50">Secure Registry is Empty</p>
+        </div>
+      )}
+    </div>
   );
 };
 
-export default OrdersView;
+export default OrderView;

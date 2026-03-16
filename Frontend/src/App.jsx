@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "r
 // Global Components
 import Navbar from "./component/Navbar";
 import Footer from "./component/Footer";
+import ProtectedRoute from "./auth/ProtectedRoute"; // Import your new guard
 
 // Public Pages
 import Userintercationpage from "./pages/Userintercationpage";
@@ -28,24 +29,12 @@ import AuthLayout from "./pages/Auth/AuthLayout";
 function AppContent() {
   const location = useLocation();
 
-  // Define all paths where the Navbar and Footer SHOULD appear
   const publicPaths = [
-    "/home", 
-    "/about", 
-    "/shop", 
-    "/collections", 
-    "/product", 
-    "/contact", 
-    "/care", 
-    "/checkout", 
-    "/orders",
-    "/cart"
+    "/home", "/about", "/shop", "/collections", 
+    "/product", "/contact", "/care", "/checkout", 
+    "/orders", "/cart"
   ];
 
-  // hideLayout logic:
-  // We hide the UI if we are at the entry video ("/") 
-  // OR if we are in admin/auth routes 
-  // OR if the current path is NOT in our publicPaths list (which catches the 404 page)
   const hideLayout =
     location.pathname === "/" || 
     location.pathname.startsWith("/admin") ||
@@ -54,7 +43,6 @@ function AppContent() {
 
   return (
     <>
-      {/* Conditionally render Navbar based on hideLayout */}
       {!hideLayout && <Navbar />}
 
       <Routes>
@@ -69,9 +57,26 @@ function AppContent() {
         <Route path="/product" element={<ProductPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/care" element={<CarePage />} />
-        <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/orders" element={<OrderHistory />} />
         <Route path="/cart" element={<CartPage />} />
+        <Route path="/product/:id" element={<ProductPage />} />
+
+        {/* --- PROTECTED CUSTOMER SUITE --- */}
+        <Route 
+          path="/checkout" 
+          element={
+            <ProtectedRoute>
+              <CheckoutPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/orders" 
+          element={
+            <ProtectedRoute>
+              <OrderHistory />
+            </ProtectedRoute>
+          } 
+        />
 
         {/* --- AUTHENTICATION SUITE --- */}
         <Route path="/auth">
@@ -94,14 +99,20 @@ function AppContent() {
           />
         </Route>
 
-        {/* --- ADMINISTRATIVE SUITE --- */}
-        <Route path="/admin/*" element={<AdminLayout />} />
+        {/* --- ADMINISTRATIVE SUITE (Admin Only) --- */}
+        <Route 
+          path="/admin/*" 
+          element={
+            <ProtectedRoute adminOnly={true}>
+              <AdminLayout />
+            </ProtectedRoute>
+          } 
+        />
 
         {/* --- CATCH-ALL (404) --- */}
         <Route path="*" element={<NotFound />} />
       </Routes>
 
-      {/* Conditionally render Footer based on hideLayout */}
       {!hideLayout && <Footer />}
     </>
   );

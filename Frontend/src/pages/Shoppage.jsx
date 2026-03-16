@@ -1,23 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom"; // Added for navigation
 import { motion } from "framer-motion";
-import { Filter, LayoutGrid, List, ChevronRight, Star } from "lucide-react";
+import { LayoutGrid, List, Star, Loader2 } from "lucide-react";
+import axiosInstance from "../utils/axiosInstance";
+import apiPath from "../utils/apiPath";
 import banner from "../assets/banner.png";
-
-// Mock Data based on the image
-const products = [
-  { id: 1, name: "Laminar Marina", category: "Ladies Watches", price: 3400, img: "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=400" },
-  { id: 2, name: "Montbrilliant", category: "Mens Watches", price: 6200, img: "https://images.unsplash.com/photo-1547996160-81dfa63595dd?auto=format&fit=crop&q=80&w=400", sale: true },
-  { id: 3, name: "Tag Heuer Carrera", category: "Ladies Watches", price: 5050, img: "https://images.unsplash.com/photo-1522338140262-f46f5913618a?auto=format&fit=crop&q=80&w=400" },
-  { id: 4, name: "Possession Chain Ring", category: "Jewellery", price: 1100, img: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&q=80&w=400" },
-  { id: 5, name: "Seamaster 300 Spectre", category: "Mens Watches", price: 6400, img: "https://images.unsplash.com/photo-1508685096489-725f4fd3f106?auto=format&fit=crop&q=80&w=400" },
-  { id: 6, name: "Panthère De Ring", category: "Jewellery", price: 7550, img: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=400", sale: true },
-];
 
 const ShopPage = () => {
   const [view, setView] = useState("grid");
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  // --- 1. Fetch Products from Backend ---
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const { data } = await axiosInstance.get(apiPath.PRODUCT.GET_ALL);
+        setProducts(data);
+        setLoading(false);
+      } catch (err) {
+        setError(err); 
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // --- 2. Filter Logic ---
+  const filteredProducts = selectedCategory === "All" 
+    ? products 
+    : products.filter(p => p.category === selectedCategory);
+
+  if (loading) return (
+    <div className="min-h-screen bg-[#0c0c0c] flex flex-col items-center justify-center text-yellow-400">
+      <Loader2 className="animate-spin mb-4" size={40} />
+      <p className="tracking-[0.3em] uppercase text-xs">Curating Collection...</p>
+    </div>
+  );
 
   return (
-    <>
     <div className="bg-[#0c0c0c] text-zinc-300 min-h-screen font-sans">
       
       {/* --- Page Header --- */}
@@ -29,7 +54,13 @@ const ShopPage = () => {
           alt="Banner"
         />
         <div className="relative z-20 text-center">
-          <h1 className="text-4xl md:text-5xl font-light tracking-[0.2em] text-white uppercase">Our Shop</h1>
+          <motion.h1 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-4xl md:text-5xl font-light tracking-[0.2em] text-white uppercase"
+          >
+            Our Shop
+          </motion.h1>
           <p className="text-yellow-400 text-xs tracking-widest mt-2 italic opacity-70">Something different, every day.</p>
         </div>
       </header>
@@ -38,47 +69,32 @@ const ShopPage = () => {
         
         {/* --- Sidebar Filters --- */}
         <aside className="space-y-10">
-          {/* Categories */}
           <div>
             <h3 className="text-sm font-bold tracking-widest uppercase border-b border-zinc-800 pb-4 mb-6">Product Categories</h3>
             <ul className="space-y-4">
-              {["Watches", "Jewellery", "Accessories", "Smartwatch"].map((cat) => (
-                <li key={cat} className="flex justify-between items-center text-sm group cursor-pointer hover:text-white transition-colors">
+              {["All", "Watches", "Jewellery", "Accessories"].map((cat) => (
+                <li 
+                  key={cat} 
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`flex justify-between items-center text-sm group cursor-pointer transition-colors ${selectedCategory === cat ? 'text-yellow-400' : 'hover:text-white'}`}
+                >
                   <span>{cat}</span>
-                  <span className="text-[10px] text-zinc-600 group-hover:text-yellow-400 transition-colors">(12)</span>
+                  <span className="text-[10px] text-zinc-600 group-hover:text-yellow-400">
+                    ({cat === "All" ? products.length : products.filter(p => p.category === cat).length})
+                  </span>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Price Filter */}
           <div>
             <h3 className="text-sm font-bold tracking-widest uppercase border-b border-zinc-800 pb-4 mb-6">Filter By Price</h3>
             <div className="h-1 bg-zinc-800 rounded-full relative mb-4">
               <div className="absolute left-0 right-1/4 h-full bg-yellow-400 rounded-full" />
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-xs text-zinc-500 uppercase">Price: $299 — $8400</span>
+              <span className="text-xs text-zinc-500 uppercase">Range: $0 — $10k+</span>
               <button className="text-[10px] bg-yellow-400 text-black px-4 py-1.5 font-bold rounded-sm uppercase">Filter</button>
-            </div>
-          </div>
-
-          {/* Top Rated Mini-List */}
-          <div>
-            <h3 className="text-sm font-bold tracking-widest uppercase border-b border-zinc-800 pb-4 mb-6">Top Rated</h3>
-            <div className="space-y-6">
-              {products.slice(0, 3).map((p) => (
-                <div key={p.id} className="flex gap-4 items-center">
-                  <img src={p.img} className="w-16 h-16 object-cover rounded-sm grayscale hover:grayscale-0 transition-all" alt={p.name} />
-                  <div>
-                    <h4 className="text-[11px] font-bold text-zinc-400 leading-tight">{p.name}</h4>
-                    <div className="flex text-yellow-400 my-1 scale-75 origin-left">
-                      {[...Array(5)].map((_, i) => <Star key={i} size={12} fill="currentColor" />)}
-                    </div>
-                    <span className="text-xs font-mono text-zinc-500">${p.price.toLocaleString()}</span>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </aside>
@@ -86,68 +102,67 @@ const ShopPage = () => {
         {/* --- Product Grid Container --- */}
         <section className="lg:col-span-3">
           
-          {/* Grid Toolbar */}
           <div className="flex justify-between items-center border-b border-zinc-800 pb-6 mb-8 text-xs tracking-widest text-zinc-500 uppercase">
-            <span>Showing 1–12 of 16 products</span>
+            <span>Showing {filteredProducts.length} items</span>
             <div className="flex items-center space-x-6">
               <div className="flex space-x-2">
                 <LayoutGrid size={16} className={view === "grid" ? "text-yellow-400" : "cursor-pointer"} onClick={() => setView("grid")} />
-                <List size={16} className={view === "list" ? "text-yellow-400" : "cursor-pointer"} onClick={() => setView("list")} />
               </div>
-              <select className="bg-transparent border-none focus:ring-0 cursor-pointer">
-                <option>Default Sorting</option>
-                <option>Price: Low to High</option>
-                <option>Newest Arrivals</option>
-              </select>
             </div>
           </div>
 
-          {/* Grid */}
+          {error && <p className="text-red-500 bg-red-500/10 p-4 border border-red-500/20 text-center">{error}</p>}
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <motion.div 
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                key={product._id}
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
                 viewport={{ once: true }}
                 className="group relative text-center"
               >
-                {product.sale && (
-                  <span className="absolute top-4 left-4 z-20 bg-yellow-400 text-black text-[9px] font-bold px-2 py-1 uppercase rounded-sm">Sale</span>
+                {product.countInStock === 0 && (
+                  <span className="absolute top-4 left-4 z-20 bg-zinc-800 text-white text-[9px] font-bold px-2 py-1 uppercase rounded-sm">Sold Out</span>
                 )}
-                <div className="relative overflow-hidden mb-6 aspect-[4/5] bg-zinc-900 flex items-center justify-center">
-                  <img 
-                    src={product.img} 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                    alt={product.name} 
-                  />
-                  {/* Quick Add Overlay */}
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <button className="bg-white text-black text-[10px] tracking-widest font-bold px-6 py-3 uppercase">Add to Cart</button>
+                
+                {/* Image Wrap with Link */}
+                <Link to={`/product/${product._id}`}>
+                  <div className="relative overflow-hidden mb-6 aspect-[4/5] bg-zinc-900 flex items-center justify-center">
+                    <img 
+                      src={product.mainImage} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+                      alt={product.name} 
+                    />
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <button 
+                        disabled={product.countInStock === 0}
+                        className="bg-white text-black text-[10px] tracking-widest font-bold px-6 py-3 uppercase hover:bg-yellow-400 transition-colors"
+                      >
+                        View Details
+                      </button>
+                    </div>
                   </div>
-                </div>
+                </Link>
                 
                 <p className="text-[10px] text-yellow-400 tracking-widest uppercase mb-1">{product.category}</p>
-                <h2 className="text-lg font-light text-zinc-100 mb-2 group-hover:text-yellow-400 transition-colors">{product.name}</h2>
+                
+                {/* Title Wrap with Link */}
+                <Link to={`/product/${product._id}`}>
+                  <h2 className="text-lg font-light text-zinc-100 mb-2 group-hover:text-yellow-400 transition-colors uppercase tracking-tight">
+                    {product.name}
+                  </h2>
+                </Link>
+
                 <p className="text-sm font-mono text-zinc-400">
-                  ${product.price.toLocaleString()}.00
+                  ${product.price?.toLocaleString()}.00
                 </p>
               </motion.div>
             ))}
           </div>
-
-          {/* Pagination */}
-          <div className="mt-16 pt-8 border-t border-zinc-800 flex justify-center space-x-4">
-            <span className="w-10 h-10 flex items-center justify-center bg-yellow-400 text-black rounded-full font-bold text-xs">1</span>
-            <span className="w-10 h-10 flex items-center justify-center border border-zinc-800 hover:border-yellow-400 transition-colors rounded-full font-bold text-xs cursor-pointer">2</span>
-            <span className="w-10 h-10 flex items-center justify-center border border-zinc-800 hover:border-yellow-400 transition-colors rounded-full font-bold text-xs cursor-pointer italic font-serif leading-none">→</span>
-          </div>
         </section>
       </main>
-
- 
     </div>
-    </>
   );
 };
 

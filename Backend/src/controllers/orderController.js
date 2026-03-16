@@ -13,6 +13,7 @@ export const addOrderItems = async (req, res) => {
       itemsPrice,
       taxPrice,      // Ensure this is extracted
       shippingPrice,
+      phoneno,       // Ensure this is extracted
       totalPrice,
     } = req.body;
 
@@ -33,6 +34,7 @@ export const addOrderItems = async (req, res) => {
       taxPrice: taxPrice || 0, // Fallback to 0 if not provided
       shippingPrice: shippingPrice || 0,
       totalPrice,
+      phoneno, // Add phone number to order schema
     });
 
     const createdOrder = await order.save();
@@ -41,6 +43,9 @@ export const addOrderItems = async (req, res) => {
     res.status(400).json({ message: 'Order failed', error: error.message });
   }
 };
+
+
+
 
 // --- 2. GET ORDER BY ID ---
 // @desc    Get order details for the receipt/tracking page
@@ -91,4 +96,56 @@ export const updateOrderToPaid = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Update failed' });
   }
+};
+
+// Example Backend Logic
+const placeOrder = async (req, res) => {
+    try {
+        const { userId, items, amount, address } = req.body;
+
+        const newOrder = new orderModel({
+            userId,
+            items,
+            amount,
+            address,
+            paymentMethod: "COD",
+            payment: false,
+            date: Date.now()
+        });
+
+        await newOrder.save();
+        res.json({ success: true, message: "Order placed successfully" });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+}
+
+
+export const deleteOrder = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+
+    if (order) {
+      // Check if the user deleting it is the owner
+      if (order.user.toString() !== req.user._id.toString()) {
+        return res.status(401).json({ message: "Not authorized to delete this order" });
+      }
+
+      await order.deleteOne();
+      res.json({ message: 'Order removed' });
+    } else {
+      res.status(404).json({ message: 'Order not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getallOrders = async (req, res) => {
+  try {    const orders = await Order.find({}).populate('user', 'name email').sort({ createdAt: -1 });
+    res.json(orders);
+  }
+    catch (error) {
+    res.status(500).json({ message: error.message });
+  } 
 };

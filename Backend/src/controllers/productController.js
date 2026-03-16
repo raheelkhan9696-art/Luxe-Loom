@@ -26,6 +26,26 @@ export const createProduct = async (req, res) => {
   }
 };
 
+
+export const getProductById = async (req, res) => {
+  try {
+    // 1. Log the ID to your terminal to see what's arriving
+    console.log("Fetching ID:", req.params.id);
+
+    const product = await Product.findById(req.params.id);
+
+    if (product) {
+      res.json(product);
+    } else {
+      // If this fires, the ID is valid format but not in the DB
+      res.status(404).json({ message: "Product not found in database" });
+    }
+  } catch (error) {
+    // If this fires, the ID format is likely invalid (CastError)
+    res.status(500).json({ message: "Invalid ID format or Server Error" });
+  }
+};
+
 // --- 2. GET ALL PRODUCTS ---
 export const getProducts = async (req, res) => {
   try {

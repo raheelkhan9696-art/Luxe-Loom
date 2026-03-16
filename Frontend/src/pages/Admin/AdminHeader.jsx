@@ -1,13 +1,32 @@
-import React from "react";
-import { Search, Plus, Bell, Calendar } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search, Plus, Bell, Calendar, Loader2 } from "lucide-react";
 
-const AdminHeader = ({ activeTab, onAction }) => {
+const AdminHeader = ({ activeTab, onAction, onSearch, isSearching }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Debounce search to avoid excessive backend API calls
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (onSearch) onSearch(searchTerm);
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm, onSearch]);
+
+  const currentDate = new Date().toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  });
+
   return (
     <header className="flex flex-col md:flex-row justify-between items-end mb-12 gap-8">
       {/* --- Page Title & Context --- */}
       <div>
         <div className="flex items-center gap-3 mb-2">
-          <p className="text-yellow-400 text-[10px] tracking-[0.5em] uppercase">Management</p>
+          <p className="text-yellow-400 text-[10px] tracking-[0.5em] uppercase">
+            Luxe & Loom Archive
+          </p>
           <div className="h-px w-8 bg-yellow-400/30" />
         </div>
         <h2 className="text-4xl font-light text-white uppercase tracking-tighter">
@@ -17,13 +36,20 @@ const AdminHeader = ({ activeTab, onAction }) => {
 
       {/* --- Action Controls --- */}
       <div className="flex flex-col md:flex-row items-center gap-8 w-full md:w-auto">
-        {/* Search Bar matching Product Editor Style */}
+        
+        {/* Search Bar with Backend Loading State */}
         <div className="relative w-full md:w-64 group">
-          <Search className="absolute left-0 bottom-3 w-4 h-4 text-zinc-600 group-focus-within:text-yellow-400 transition-colors" />
+          {isSearching ? (
+            <Loader2 className="absolute left-0 bottom-3 w-4 h-4 text-yellow-400 animate-spin" />
+          ) : (
+            <Search className="absolute left-0 bottom-3 w-4 h-4 text-zinc-600 group-focus-within:text-yellow-400 transition-colors" />
+          )}
           <input 
             type="text" 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={`SEARCH ${activeTab.toUpperCase()}`} 
-            className="w-full bg-transparent border-b border-white/10 pl-8 py-2 text-[10px] tracking-widest outline-none focus:border-yellow-400 transition-colors placeholder:text-zinc-800"
+            className="w-full bg-transparent border-b border-white/10 pl-8 py-2 text-[10px] tracking-widest outline-none focus:border-yellow-400 transition-colors placeholder:text-zinc-800 uppercase"
           />
         </div>
 
@@ -31,7 +57,7 @@ const AdminHeader = ({ activeTab, onAction }) => {
         <div className="flex items-center gap-6 border-x border-white/5 px-8 hidden lg:flex">
           <div className="flex items-center gap-2 text-zinc-500">
             <Calendar size={14} />
-            <span className="text-[10px] tracking-widest uppercase">March 12, 2026</span>
+            <span className="text-[10px] tracking-widest uppercase">{currentDate}</span>
           </div>
           <div className="relative cursor-pointer text-zinc-500 hover:text-white transition-colors">
             <Bell size={16} />
@@ -40,11 +66,13 @@ const AdminHeader = ({ activeTab, onAction }) => {
         </div>
 
         {/* Primary Action Button */}
+        {/* We keep the "New Entry" logic flexible so it works for Products or Users */}
         <button 
           onClick={onAction}
-          className="w-full md:w-auto flex items-center justify-center gap-3 bg-white text-black px-8 py-4 text-[10px] font-bold tracking-[0.3em] uppercase hover:bg-yellow-400 transition-all duration-500 rounded-sm shadow-xl shadow-yellow-400/5"
+          className="w-full md:w-auto flex items-center justify-center gap-3 bg-white text-black px-8 py-4 text-[10px] font-bold tracking-[0.3em] uppercase hover:bg-yellow-400 transition-all duration-500 rounded-sm shadow-xl shadow-yellow-400/5 group"
         >
-          <Plus size={14} /> New Entry
+          <Plus size={14} className="group-hover:rotate-90 transition-transform duration-300" /> 
+          Add {activeTab === "Products" ? "Product" : "Entry"}
         </button>
       </div>
     </header>

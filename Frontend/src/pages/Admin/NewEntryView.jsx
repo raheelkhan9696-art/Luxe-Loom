@@ -1,144 +1,232 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { UploadCloud, CheckCircle, MoreVertical, X } from "lucide-react";
+import { UploadCloud, CheckCircle, X, Loader2, Image as ImageIcon, Plus, Info } from "lucide-react";
+import axios from "axios";
+import apiPath from "../../utils/apiPath";
+import { toast } from "react-hot-toast";
+
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const NewEntryPage = () => {
-  const [selectedSizes, setSelectedSizes] = useState(["42mm", "44mm"]);
-  const [isBestseller, setIsBestseller] = useState(false);
-  
-  // Size options tailored for high-end watches
-  const sizes = ["36mm", "40mm", "42mm", "44mm", "46mm"];
+  const [loading, setLoading] = useState(false);
+  const [mainFile, setMainFile] = useState(null);
+  const [galleryFiles, setGalleryFiles] = useState([]);
+  const [formData, setFormData] = useState({
+    name: "",
+    description: "",
+    price: "",
+    category: "Watches",
+    material: "18K Gold & Steel",
+    countInStock: "",
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleMainFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) setMainFile(file);
+  };
+
+  const handleGalleryFilesChange = (e) => {
+    const files = Array.from(e.target.files);
+    setGalleryFiles((prev) => [...prev, ...files]);
+  };
+
+  const removeGalleryFile = (index) => {
+    setGalleryFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!mainFile) return toast.error("Primary asset is required for curation.");
+    
+    setLoading(true);
+    const data = new FormData();
+
+    // Append Text Content
+    Object.keys(formData).forEach(key => {
+      data.append(key, formData[key]);
+    });
+
+    // Append Files
+    data.append("mainImage", mainFile);
+    galleryFiles.forEach((file) => {
+      data.append("images", file); 
+    });
+
+    try {
+      const token = localStorage.getItem("token");
+      await axios.post(`${BASE_URL}${apiPath.ADMIN.PRODUCTS}`, data, {
+        headers: { 
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}` 
+        },
+      });
+
+      toast.success("Masterpiece synchronized with Archive");
+      // Reset form
+      setFormData({ name: "", description: "", price: "", category: "Watches", material: "", countInStock: "" });
+      setMainFile(null);
+      setGalleryFiles([]);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Acquisition Failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-zinc-300 pt-16 pb-20 px-6 md:px-12">
-      <div className="max-w-[800px] mx-auto">
+    <div className="min-h-screen bg-[#050505] text-zinc-300 pt-24 pb-20 px-6 font-sans">
+      <div className="max-w-[1000px] mx-auto">
         
-        {/* --- Header & Context --- */}
-        <header className="mb-16 pb-8 border-b border-white/5">
-          <p className="text-yellow-400 text-[10px] tracking-[0.5em] uppercase mb-3">Portfolio Curation</p>
-          <h1 className="text-4xl md:text-5xl font-light text-white uppercase tracking-tighter mb-2">
-            New <span className="italic font-serif">Aquisition</span>
-          </h1>
-          <p className="text-xs font-light leading-relaxed opacity-50 max-w-lg">
-            Introduce a new masterpiece to the Luxe & Loom private catalog. Ensure high-resolution imagery and precise specifications.
-          </p>
+        {/* --- Header --- */}
+        <header className="mb-20">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            <p className="text-yellow-400 text-[9px] tracking-[0.6em] uppercase mb-4 font-bold">Luxe & Loom / Admin Portal</p>
+            <h1 className="text-5xl md:text-6xl font-light text-white uppercase tracking-tighter mb-4">
+              New <span className="italic font-serif">Acquisition</span>
+            </h1>
+            <div className="h-px w-24 bg-yellow-400/40" />
+          </motion.div>
         </header>
 
-        <form className="space-y-12">
+        <form onSubmit={handleSubmit} className="space-y-20">
           
-          {/* --- Cinematic Image Upload --- */}
-          <section>
-            <div className="flex justify-between items-end mb-6">
-              <label className="text-sm font-bold tracking-[0.2em] uppercase text-white">Upload Media</label>
-              <p className="text-[9px] text-zinc-600 tracking-widest uppercase">Max: 16MB / RAW/JPEG/PNG</p>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {/* Primary Drop Zone */}
-              <div className="md:col-span-2 group relative h-40 md:h-full aspect-[1/1] border-2 border-dashed border-white/10 hover:border-yellow-400/40 rounded-sm flex flex-col items-center justify-center cursor-pointer transition-all bg-white/[0.01]">
-                <UploadCloud size={24} className="text-yellow-400 mb-3 opacity-60 group-hover:opacity-100 transition-opacity" strokeWidth={1.2} />
-                <span className="text-[10px] tracking-[0.3em] uppercase text-zinc-500 font-bold">Main Focus</span>
-                <span className="text-[9px] text-zinc-700 tracking-wider">Drag or Click</span>
-              </div>
-              
-              {/* Secondary Thumbnails */}
-              {[1, 2].map((thumb) => (
-                <div key={thumb} className="relative aspect-square border-2 border-dashed border-white/10 group flex items-center justify-center rounded-sm bg-white/[0.01]">
-                   <MoreVertical size={16} className="text-zinc-700 opacity-60 group-hover:opacity-100 transition-opacity" />
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* --- Naming & Description --- */}
-          <div className="space-y-8">
-            <div className="relative group">
-              <label className="text-[10px] tracking-widest uppercase text-zinc-500 block mb-3 font-bold">Aquisition Title</label>
-              <input 
-                type="text" 
-                placeholder="E.G. HERITAGE COSMOGRAPH DAYTONA" 
-                className="w-full bg-white/[0.02] border border-white/10 px-5 py-4 text-sm focus:border-yellow-400 outline-none transition-all placeholder:text-zinc-800 rounded-sm"
-              />
+          {/* --- Media Section --- */}
+          <section className="space-y-8">
+            <div className="flex items-center gap-4 border-b border-white/5 pb-4">
+              <h2 className="text-[10px] tracking-[0.3em] uppercase text-white font-bold">Visual Documentation</h2>
+              <Info size={12} className="text-zinc-700" />
             </div>
 
-            <div className="relative group">
-              <label className="text-[10px] tracking-widest uppercase text-zinc-500 block mb-3 font-bold">Narrative Description</label>
-              <textarea 
-                rows="5"
-                placeholder="THE ARTISANAL HISTORY, MECHANICS, AND SIGNIFICANCE OF THE PIECE..."
-                className="w-full bg-white/[0.02] border border-white/10 px-5 py-4 text-sm focus:border-yellow-400 outline-none transition-all placeholder:text-zinc-800 resize-none rounded-sm font-light italic"
-              />
-            </div>
-          </div>
-
-          {/* --- Specifics Grid --- */}
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="relative group">
-              <label className="text-[10px] tracking-widest uppercase text-zinc-500 block mb-3 font-bold">Curation Category</label>
-              <select className="w-full bg-white/[0.02] border border-white/10 px-5 py-4 text-sm focus:border-yellow-400 outline-none appearance-none rounded-sm">
-                <option className="bg-black">Watches</option>
-                <option className="bg-black">High Jewelry</option>
-                <option className="bg-black">Archival Goods</option>
-              </select>
-            </div>
-
-            <div className="relative group">
-              <label className="text-[10px] tracking-widest uppercase text-zinc-500 block mb-3 font-bold">Material Focus</label>
-              <select className="w-full bg-white/[0.02] border border-white/10 px-5 py-4 text-sm focus:border-yellow-400 outline-none appearance-none rounded-sm">
-                <option className="bg-black">yellow-400 / Steel</option>
-                <option className="bg-black">Platinum</option>
-                <option className="bg-black">Diamond Pave</option>
-              </select>
-            </div>
-
-            <div className="relative group">
-              <label className="text-[10px] tracking-widest uppercase text-zinc-500 block mb-3 font-bold">Valuation (PKR)</label>
-              <input 
-                type="text" 
-                placeholder="RS 1,599,000.00" 
-                className="w-full bg-white/[0.02] border border-white/10 px-5 py-4 text-sm focus:border-yellow-400 outline-none transition-all placeholder:text-zinc-800 rounded-sm font-mono text-white"
-              />
-            </div>
-          </section>
-
-          {/* --- Case Diameter (Refined Size Guide) --- */}
-          <section>
-            <label className="text-sm font-bold tracking-[0.2em] uppercase text-white block mb-5">Case Diameter (MM)</label>
-            <div className="flex gap-4">
-              {sizes.map(size => (
-                <button 
-                  key={size}
-                  onClick={(e) => {
-                    e.preventDefault(); // Prevent form submission
-                    setSelectedSizes(prev => prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]);
-                  }}
-                  className={`relative flex-1 py-4 text-xs tracking-widest uppercase border rounded-sm transition-all ${
-                    selectedSizes.includes(size) ? 'bg-white text-black border-white' : 'border-white/10 text-zinc-500 hover:border-yellow-400'
-                  }`}
-                >
-                  {selectedSizes.includes(size) && (
-                    <div className="absolute top-1 right-1 text-yellow-400"><X size={12} strokeWidth={1} /></div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* Main Image Upload */}
+              <div className="md:col-span-2 space-y-4">
+                <label className="text-[9px] uppercase tracking-widest text-zinc-500">Primary Showcase Asset</label>
+                <div className="relative h-80 border border-white/10 flex flex-col items-center justify-center bg-white/[0.01] hover:bg-white/[0.03] transition-all overflow-hidden group rounded-sm">
+                  {mainFile ? (
+                    <img 
+                      src={URL.createObjectURL(mainFile)} 
+                      className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" 
+                      alt="Preview"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center">
+                        <UploadCloud size={40} className="text-zinc-800 group-hover:text-yellow-400 transition-colors mb-4" strokeWidth={1} />
+                        <span className="text-[10px] tracking-widest uppercase text-zinc-600">Drop masterpiece here</span>
+                    </div>
                   )}
-                  {size}
-                </button>
-              ))}
+                  <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleMainFileChange} accept="image/*" />
+                </div>
+              </div>
+
+              {/* Gallery Upload */}
+              <div className="space-y-4">
+                <label className="text-[9px] uppercase tracking-widest text-zinc-500">Angle Gallery</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="aspect-square border border-dashed border-white/10 flex items-center justify-center hover:bg-white/[0.02] relative cursor-pointer transition-colors group">
+                      <Plus size={20} className="text-zinc-700 group-hover:text-yellow-400" />
+                      <input type="file" multiple className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleGalleryFilesChange} accept="image/*" />
+                  </div>
+                  <AnimatePresence>
+                    {galleryFiles.map((file, idx) => (
+                      <motion.div 
+                        key={idx} 
+                        initial={{ opacity: 0, scale: 0.9 }} 
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="relative aspect-square border border-white/5 rounded-sm overflow-hidden group shadow-2xl"
+                      >
+                        <img src={URL.createObjectURL(file)} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" alt="Gallery preview" />
+                        <button type="button" onClick={() => removeGalleryFile(idx)} className="absolute top-1 right-1 bg-black/90 p-1.5 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-md border border-white/10"><X size={10}/></button>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </div>
             </div>
           </section>
 
-          {/* --- Ledger / Visibility --- */}
-          <div className="pt-8 border-t border-white/5 space-y-8">
-            <div className="flex items-center gap-4">
-              <div 
-                onClick={() => setIsBestseller(!isBestseller)} 
-                className={`relative w-12 h-6 rounded-full cursor-pointer transition-colors ${isBestseller ? 'bg-yellow-400' : 'bg-zinc-800 border border-white/10'}`}
-              >
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform ${isBestseller ? 'translate-x-7' : 'translate-x-1'}`} />
-              </div>
-              <label className="text-[11px] tracking-[0.3em] uppercase text-zinc-400 font-bold">Showcase on Private Ledger (Bestseller)</label>
+          {/* --- Specifications Section --- */}
+          <section className="space-y-12">
+             <div className="flex items-center gap-4 border-b border-white/5 pb-4">
+              <h2 className="text-[10px] tracking-[0.3em] uppercase text-white font-bold">Technical Specifications</h2>
             </div>
 
-            <button type="submit" className="w-full flex items-center justify-center gap-2 bg-white text-black py-5 text-[11px] tracking-[0.4em] uppercase font-bold hover:bg-yellow-400 transition-colors duration-500 rounded-sm">
-              <CheckCircle size={14} /> Commit to Portfolio
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-10">
+              <div className="space-y-2 group">
+                <label className="text-[9px] tracking-widest uppercase text-zinc-600 font-bold block transition-colors group-focus-within:text-yellow-400">Title of Acquisition</label>
+                <input 
+                  name="name" type="text" required value={formData.name} onChange={handleInputChange}
+                  placeholder="E.G. PATEK PHILIPPE NAUTILUS" 
+                  className="w-full bg-transparent border-b border-white/10 py-4 text-xl focus:border-yellow-400 outline-none transition-all placeholder:text-zinc-900 uppercase tracking-tight text-white font-light"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[9px] tracking-widest uppercase text-zinc-600 font-bold block">Material Composition</label>
+                <input 
+                  name="material" type="text" value={formData.material} onChange={handleInputChange}
+                  placeholder="E.G. OYSTERSTEEL AND EVEROSE GOLD" 
+                  className="w-full bg-transparent border-b border-white/10 py-4 text-sm focus:border-yellow-400 outline-none transition-all placeholder:text-zinc-900 uppercase tracking-widest text-zinc-400"
+                />
+              </div>
+
+              <div className="md:col-span-2 space-y-2">
+                <label className="text-[9px] tracking-widest uppercase text-zinc-600 font-bold block">Curated Narrative</label>
+                <textarea 
+                  name="description" rows="3" required value={formData.description} onChange={handleInputChange}
+                  placeholder="DESCRIBE THE HERITAGE, CONDITION, AND MOVEMENT..."
+                  className="w-full bg-white/[0.02] border border-white/5 p-6 text-sm focus:border-yellow-400/30 outline-none transition-all placeholder:text-zinc-800 resize-none rounded-sm font-light italic leading-relaxed"
+                />
+              </div>
+
+              <div className="grid grid-cols-3 gap-6 md:col-span-2">
+                <div className="space-y-2">
+                  <label className="text-[9px] tracking-widest uppercase text-zinc-600 font-bold block">Category</label>
+                  <select 
+                    name="category" value={formData.category} onChange={handleInputChange}
+                    className="w-full bg-white/[0.02] border border-white/5 p-4 text-[10px] uppercase tracking-[0.2em] focus:border-yellow-400 outline-none appearance-none rounded-sm cursor-pointer"
+                  >
+                    <option value="Watches" className="bg-black">Watches</option>
+                    <option value="High Jewelry" className="bg-black">High Jewelry</option>
+                    <option value="Timepieces" className="bg-black">Timepieces</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] tracking-widest uppercase text-zinc-600 font-bold block">Valuation (PKR)</label>
+                  <input 
+                    name="price" type="number" required value={formData.price} onChange={handleInputChange}
+                    placeholder="AMOUNT"
+                    className="w-full bg-white/[0.02] border border-white/5 p-4 text-sm outline-none focus:border-yellow-400 transition-all font-mono text-white rounded-sm" 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] tracking-widest uppercase text-zinc-600 font-bold block">Vault Units</label>
+                  <input 
+                    name="countInStock" type="number" required value={formData.countInStock} onChange={handleInputChange}
+                    placeholder="QTY"
+                    className="w-full bg-white/[0.02] border border-white/5 p-4 text-sm outline-none focus:border-yellow-400 transition-all font-mono text-white rounded-sm" 
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* --- Submit Button --- */}
+          <div className="pt-12 border-t border-white/5">
+            <button 
+              type="submit" disabled={loading}
+              className="w-full group flex items-center justify-center gap-4 bg-white text-black py-7 text-[10px] tracking-[0.6em] uppercase font-bold hover:bg-yellow-400 disabled:bg-zinc-900 disabled:text-zinc-700 transition-all duration-700 rounded-sm relative overflow-hidden"
+            >
+              <div className="relative z-10 flex items-center gap-4">
+                {loading ? <Loader2 className="animate-spin" size={18} /> : <CheckCircle size={18} />}
+                {loading ? "Archiving to Vault..." : "Commit to Private Ledger"}
+              </div>
+              <div className="absolute inset-0 bg-yellow-400 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
             </button>
           </div>
 

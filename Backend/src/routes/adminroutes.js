@@ -1,40 +1,45 @@
 import express from 'express';
+import multer from 'multer';
 const router = express.Router();
 
-// Import your administrative controllers
 import { 
     getDashboardStats, 
     createProduct, 
     updateProduct, 
     getAllOrders, 
     updateOrderStatus, 
-    deleteUser 
+    deleteUser, 
+    deleteProduct
 } from '../controllers/adminController.js';
 
-// Import Authorization Middlewares
 import { protect, admin } from '../middlewares/Authmiddleware.js';
 
-/**
- * @layer GLOBAL_ADMIN_PROTECTION
- * All routes below this middleware require:
- * 1. A valid JWT token (protect)
- * 2. A user role of 'admin' (admin)
- */
+const storage = multer.memoryStorage();
+const upload = multer({ 
+    storage,
+    limits: { fileSize: 7 * 1024 * 1024 } 
+});
+
+// Middleware Layer
 router.use(protect);
 router.use(admin);
 
-// --- 1. Analytics ---
+// Analytics
 router.get('/dashboard-stats', getDashboardStats);
 
-// --- 2. Product Management ---
-router.post('/products', createProduct);
+// Product Management
+router.post('/products', upload.fields([
+    { name: 'mainImage', maxCount: 1 }, 
+    { name: 'images', maxCount: 10 } 
+]), createProduct);
 router.put('/products/:id', updateProduct);
+router.delete('/products/:id', deleteProduct);
 
-// --- 3. Order Oversight ---
+// Order Oversight (MATCHED TO FRONTEND)
 router.get('/orders', getAllOrders);
-router.put('/orders/:id/status', updateOrderStatus);
+router.patch('/orders/:id/status', updateOrderStatus); // Fixed to PATCH
 
-// --- 4. Client Management ---
+// Client Management
 router.delete('/users/:id', deleteUser);
 
 export default router;

@@ -17,12 +17,12 @@ const Sidebar = ({ activeTab, setActiveTab, isOpen, setIsOpen }) => {
       ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
     `}>
       
-      <button 
+      {/* <button 
         onClick={() => setIsOpen && setIsOpen(false)} // Added safety check
         className="lg:hidden absolute top-8 right-6 text-zinc-500 hover:text-white"
       >
         <X size={20} />
-      </button>
+      </button> */}
 
       <div className="mb-12">
         <h1 className="text-lg font-light tracking-[0.4em] text-white">
