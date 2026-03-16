@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { MoreHorizontal, Loader2, Search, Trash2, Edit3, X, Check, Package, Layers } from "lucide-react";
-import axios from "axios";
+// 1. IMPORT YOUR CUSTOM INSTANCE
+import axiosInstance from "../../utils/axiosInstance";
 import apiPath from "../../utils/apiPath";
 import { toast } from "react-hot-toast";
-
-const BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
 const InventoryView = () => {
   const [products, setProducts] = useState([]);
@@ -22,14 +21,12 @@ const InventoryView = () => {
   const fetchInventory = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${BASE_URL}${apiPath.PRODUCT.GET_ALL}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // 2. SIMPLIFIED GET REQUEST
+      const response = await axiosInstance.get(apiPath.PRODUCT.GET_ALL);
       const data = response.data.products || response.data;
       setProducts(Array.isArray(data) ? data : []);
     } catch (err) {
-      toast.error("Failed to synchronize with Vault");
+      toast.error(err || "Failed to synchronize with Vault");
     } finally {
       setLoading(false);
     }
@@ -38,15 +35,13 @@ const InventoryView = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Purge this asset from the Registry?")) return;
     try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`${BASE_URL}${apiPath.ADMIN.DELETE_PRODUCT(id)}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // 3. SECURE DELETE REQUEST
+      await axiosInstance.delete(apiPath.ADMIN.DELETE_PRODUCT(id));
       toast.success("Asset removed");
       setProducts(prev => prev.filter(item => item._id !== id));
       setActionId(null);
     } catch (err) {
-      toast.error("De-acquisition failed");
+      toast.error(err || "De-acquisition failed");
     }
   };
 
@@ -58,15 +53,13 @@ const InventoryView = () => {
 
   const handleUpdate = async (id) => {
     try {
-      const token = localStorage.getItem("token");
-      await axios.put(`${BASE_URL}${apiPath.ADMIN.UPDATE_PRODUCT(id)}`, editForm, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // 4. SECURE PUT REQUEST
+      await axiosInstance.put(apiPath.ADMIN.UPDATE_PRODUCT(id), editForm);
       toast.success("Archive updated");
       setProducts(prev => prev.map(p => p._id === id ? { ...p, ...editForm } : p));
       setEditingId(null);
     } catch (err) {
-      toast.error("Update failed");
+      toast.error(err || "Update failed");
     }
   };
 
@@ -97,7 +90,7 @@ const InventoryView = () => {
         </div>
       </div>
 
-      {/* Desktop Table View (Hidden on Mobile) */}
+      {/* Desktop Table View */}
       <div className="hidden md:block bg-white/[0.02] border border-white/5 rounded-sm overflow-visible">
         <table className="w-full text-left">
           <thead className="border-b border-white/5 bg-white/[0.01]">
@@ -176,7 +169,7 @@ const InventoryView = () => {
         </table>
       </div>
 
-      {/* Mobile Card View (Shown on Mobile only) */}
+      {/* Mobile Card View */}
       <div className="md:hidden space-y-4">
         {filteredProducts.map((item) => (
           <div key={item._id} className="bg-white/[0.02] border border-white/5 p-5 rounded-sm space-y-4">

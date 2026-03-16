@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Shield, ExternalLink, Loader2, Trash2 } from "lucide-react";
-import axios from "axios";
+// 1. IMPORT YOUR CUSTOM INSTANCE
+import axiosInstance from "../../utils/axiosInstance";
 import apiPath from "../../utils/apiPath";
-
-// Assuming your apiPath.js exports an object with an AUTH property
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const ClientsView = () => {
   const [clients, setClients] = useState([]);
@@ -19,23 +17,17 @@ const ClientsView = () => {
   const fetchClients = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-
-      // FIXED: Using your exact apiPath structure
-      // Note: We prepend BASE_URL if apiPath doesn't already include it
-      const url = apiPath.AUTH.ALL_USERS.startsWith('http') 
-                  ? apiPath.AUTH.ALL_USERS 
-                  : `${BASE_URL}${apiPath.AUTH.ALL_USERS}`;
-
-      const response = await axios.get(url, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      
+      // 2. SIMPLIFIED REQUEST
+      // The baseURL and Authorization headers are handled automatically now!
+      const response = await axiosInstance.get(apiPath.AUTH.ALL_USERS);
       
       if (response.data.success) {
         setClients(response.data.users);
       }
     } catch (err) {
       console.error("Luxe & Loom Registry Error:", err);
+      // Optional: Add toast.error(err) here for UI feedback
     } finally {
       setLoading(false);
     }
@@ -140,6 +132,7 @@ const ClientsView = () => {
         )}
       </div>
 
+      {/* Decorative Guard Section */}
       <div className="mt-12 p-8 border border-dashed border-white/10 rounded-sm flex flex-col items-center justify-center space-y-4">
         <Shield size={24} className="text-zinc-800" strokeWidth={1} />
         <p className="text-[10px] tracking-[0.3em] uppercase text-zinc-600">Administrative Encryption Active</p>

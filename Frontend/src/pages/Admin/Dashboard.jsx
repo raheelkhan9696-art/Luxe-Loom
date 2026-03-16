@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Loader2, TrendingUp, Package, Wallet, Calendar, Info } from "lucide-react";
+import { Loader2, TrendingUp, Package, Wallet, Info } from "lucide-react";
 import { 
   AreaChart, 
   Area, 
@@ -10,11 +10,10 @@ import {
   Tooltip, 
   ResponsiveContainer 
 } from "recharts";
-import axios from "axios";
+// 1. IMPORT YOUR CUSTOM INSTANCE
+import axiosInstance from "../../utils/axiosInstance";
 import apiPath from "../../utils/apiPath";
 import { toast } from "react-hot-toast";
-
-const BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "");
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -29,10 +28,9 @@ const Dashboard = () => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("token");
-        const response = await axios.get(`${BASE_URL}${apiPath.ADMIN.DASHBOARD}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        // 2. USE axiosInstance.get
+        // Headers are now handled automatically by the interceptor!
+        const response = await axiosInstance.get(apiPath.ADMIN.DASHBOARD);
 
         setStats({
           revenue: response.data.revenue?.toLocaleString() || "0",
@@ -41,7 +39,8 @@ const Dashboard = () => {
           chartData: response.data.chartData || []
         });
       } catch (err) {
-        toast.error("Failed to sync live market data");
+        // Use the clean error message from your interceptor
+        toast.error(err || "Failed to sync live market data");
         console.error("Dashboard Error:", err);
       } finally {
         setLoading(false);
@@ -82,7 +81,7 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-10 animate-in fade-in duration-1000">
-      {/* --- Key Metrics --- */}
+      {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {statConfig.map((stat, i) => (
           <motion.div 
@@ -104,7 +103,7 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* --- Visual Analytics Chart --- */}
+      {/* Visual Analytics Chart */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

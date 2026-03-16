@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { UploadCloud, CheckCircle, X, Loader2, Image as ImageIcon, Plus, Info } from "lucide-react";
-import axios from "axios";
+import { UploadCloud, CheckCircle, X, Loader2, Plus, Info } from "lucide-react";
+// 1. IMPORT YOUR CUSTOM INSTANCE
+import axiosInstance from "../../utils/axiosInstance";
 import apiPath from "../../utils/apiPath";
 import { toast } from "react-hot-toast";
-
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 const NewEntryPage = () => {
   const [loading, setLoading] = useState(false);
@@ -58,21 +57,25 @@ const NewEntryPage = () => {
     });
 
     try {
-      const token = localStorage.getItem("token");
-      await axios.post(`${BASE_URL}${apiPath.ADMIN.PRODUCTS}`, data, {
+      // 2. USE AXIOS INSTANCE
+      // The headers (Authorization) are added automatically by the interceptor.
+      // We only need to specify the content-type for this specific request.
+      await axiosInstance.post(apiPath.ADMIN.PRODUCTS, data, {
         headers: { 
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}` 
+          "Content-Type": "multipart/form-data" 
         },
       });
 
       toast.success("Masterpiece synchronized with Archive");
+      
       // Reset form
-      setFormData({ name: "", description: "", price: "", category: "Watches", material: "", countInStock: "" });
+      setFormData({ name: "", description: "", price: "", category: "Watches", material: "18K Gold & Steel", countInStock: "" });
       setMainFile(null);
       setGalleryFiles([]);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Acquisition Failed");
+      // 3. IMPROVED ERROR HANDLING
+      // axiosInstance interceptor likely returns err.response.data.message
+      toast.error(err || "Acquisition Failed");
     } finally {
       setLoading(false);
     }
@@ -82,7 +85,7 @@ const NewEntryPage = () => {
     <div className="min-h-screen bg-[#050505] text-zinc-300 pt-24 pb-20 px-6 font-sans">
       <div className="max-w-[1000px] mx-auto">
         
-        {/* --- Header --- */}
+        {/* Header */}
         <header className="mb-20">
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
             <p className="text-yellow-400 text-[9px] tracking-[0.6em] uppercase mb-4 font-bold">Luxe & Loom / Admin Portal</p>
@@ -95,7 +98,7 @@ const NewEntryPage = () => {
 
         <form onSubmit={handleSubmit} className="space-y-20">
           
-          {/* --- Media Section --- */}
+          {/* Media Section */}
           <section className="space-y-8">
             <div className="flex items-center gap-4 border-b border-white/5 pb-4">
               <h2 className="text-[10px] tracking-[0.3em] uppercase text-white font-bold">Visual Documentation</h2>
@@ -150,7 +153,7 @@ const NewEntryPage = () => {
             </div>
           </section>
 
-          {/* --- Specifications Section --- */}
+          {/* Specifications Section */}
           <section className="space-y-12">
              <div className="flex items-center gap-4 border-b border-white/5 pb-4">
               <h2 className="text-[10px] tracking-[0.3em] uppercase text-white font-bold">Technical Specifications</h2>
@@ -216,7 +219,7 @@ const NewEntryPage = () => {
             </div>
           </section>
 
-          {/* --- Submit Button --- */}
+          {/* Submit Button */}
           <div className="pt-12 border-t border-white/5">
             <button 
               type="submit" disabled={loading}

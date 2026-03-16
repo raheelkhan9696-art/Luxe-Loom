@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+// 1. IMPORT CUSTOM INSTANCE
+import axiosInstance from "../../utils/axiosInstance";
 import apiPath from "../../utils/apiPath";
 import { 
   Loader2, 
@@ -15,8 +16,6 @@ import {
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-const BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").replace(/\/$/, "");
-
 const OrderView = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,13 +26,11 @@ const OrderView = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      const { data } = await axios.get(`${BASE_URL}${apiPath.ORDERS.GET_ALL}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // 2. USE AXIOS INSTANCE (Token handled automatically)
+      const { data } = await axiosInstance.get(apiPath.ORDERS.GET_ALL);
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
-      toast.error("Archive connection failed");
+      toast.error(err || "Archive connection failed");
     } finally {
       setLoading(false);
     }
@@ -44,13 +41,10 @@ const OrderView = () => {
   const handleViewDetails = async (id) => {
     try {
       setDetailsLoading(true);
-      const token = localStorage.getItem("token");
-      const { data } = await axios.get(`${BASE_URL}${apiPath.ORDERS.GET_BY_ID(id)}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const { data } = await axiosInstance.get(apiPath.ORDERS.GET_BY_ID(id));
       setSelectedOrder(data);
     } catch (err) {
-      toast.error("Failed to retrieve manifest details");
+      toast.error(err || "Failed to retrieve manifest details");
     } finally {
       setDetailsLoading(false);
     }
@@ -59,18 +53,19 @@ const OrderView = () => {
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       setUpdatingId(orderId);
-      const token = localStorage.getItem("token");
-      await axios.patch(`${BASE_URL}${apiPath.ADMIN.UPDATE_ORDER_STATUS(orderId)}`, 
-        { status: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await axiosInstance.patch(apiPath.ADMIN.UPDATE_ORDER_STATUS(orderId), 
+        { status: newStatus }
       );
+      
       setOrders(prev => prev.map(o => o._id === orderId ? { ...o, status: newStatus } : o));
+      
       if (selectedOrder && selectedOrder._id === orderId) {
         setSelectedOrder(prev => ({ ...prev, status: newStatus }));
       }
+      
       toast.success(`Registry updated to ${newStatus}`);
     } catch (err) {
-      toast.error("Status transition failed");
+      toast.error(err || "Status transition failed");
     } finally {
       setUpdatingId(null);
     }
@@ -83,7 +78,7 @@ const OrderView = () => {
     </div>
   );
 
-  // --- DETAIL VIEW (RESPONSIVE) ---
+  // --- DETAIL VIEW ---
   if (selectedOrder) {
     return (
       <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
@@ -163,10 +158,9 @@ const OrderView = () => {
     );
   }
 
-  // --- LIST VIEW (RESPONSIVE) ---
+  // --- LIST VIEW ---
   return (
     <div className="space-y-4">
-      {/* Desktop Table */}
       <div className="hidden md:block border border-white/5 bg-white/[0.01] rounded-sm overflow-hidden animate-in fade-in duration-1000">
         <table className="w-full text-left border-collapse">
           <thead className="bg-white/5 text-[10px] uppercase tracking-widest text-zinc-500">
