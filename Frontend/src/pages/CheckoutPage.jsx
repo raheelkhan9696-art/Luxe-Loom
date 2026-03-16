@@ -52,53 +52,64 @@ const CheckoutPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!cartItems || cartItems.length === 0) return;
-    
-    setLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!cartItems || cartItems.length === 0) return;
+  
+  setLoading(true);
 
-    try {
-      // 2. CLEAN PAYLOAD MAPPING
-      const orderData = {
-        orderItems: cartItems.map(item => ({
-          product: item._id, // Ensure your backend expects 'product' for the ID
-          name: item.name,
-          qty: Number(item.quantity) || 1,
-          image: item.mainImage || (item.image && item.image[0]) || "",
-          price: Number(item.price)
-        })),
-        shippingAddress: {
-          address: formData.address,
-          city: formData.city,
-          postalCode: formData.postalCode,
-          country: formData.country,
-          phoneno: formData.phoneno
-        },
-        paymentMethod: "Cash on Delivery",
-        itemsPrice: Number(subtotal),
-        shippingPrice: Number(shipping),
-        totalPrice: Number(total),
-      };
+  try {
+    const orderData = {
+      // 1. Required field: user ID from token
+      user: currentUserId, 
+      
+      // 2. Map items to match schema exactly
+      orderItems: cartItems.map(item => ({
+        product: item._id, 
+        name: item.name,
+        qty: Number(item.quantity) || 1,
+        image: item.mainImage || (item.image && item.image[0]) || "",
+        price: Number(item.price)
+      })),
 
-      // 3. SIMPLIFIED POST REQUEST
-      // axiosInstance handles Base URL and Authorization Header
-      const response = await axiosInstance.post(apiPath.ORDERS.CREATE, orderData);
+      // 3. Match the Enum: 'Cash on Delivery' (NOT 'COD')
+      paymentMethod: "Cash on Delivery",
 
-      if (response.status === 201 || response.data._id) {
-        setOrderSuccess(true);
-        clearCart(); 
-        setTimeout(() => navigate("/orders"), 3000);
-      }
-    } catch (err) {
-      // 4. IMPROVED ERROR HANDLING
-      const errorMsg = err.response?.data?.message || err || "Finalization failed";
-      toast.error(errorMsg);
-      console.error("Protocol Error:", err);
-    } finally {
-      setLoading(false);
+      // 4. Shipping Address with Number conversion for phoneno
+      shippingAddress: {
+        address: formData.address,
+        city: formData.city,
+        postalCode: String(formData.postalCode),
+        country: formData.country,
+        phoneno: Number(formData.phoneno), // CRITICAL: Schema expects Number
+      },
+
+      // 5. Financials (Ensure taxPrice is included as it is 'required: true')
+      itemsPrice: Number(subtotal),
+      shippingPrice: Number(shipping),
+      taxPrice: 0, // Even if 0, it must be sent if 'required' is true
+      totalPrice: Number(total),
+
+      // These have defaults in your schema, so we can omit them:
+      // status, isPaid, isDelivered
+    };
+
+    const response = await axiosInstance.post(apiPath.ORDERS.CREATE, orderData);
+
+    if (response.status === 201 || response.data._id) {
+      setOrderSuccess(true);
+      clearCart(); 
+      setTimeout(() => navigate("/orders"), 3000);
     }
-  };
+  } catch (err) {
+    // This will now catch the specific error message from your backend
+    const errorMsg = err.response?.data?.message || "Finalization failed";
+    toast.error(errorMsg);
+    console.error("Mongoose Validation Error:", err.response?.data);
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (orderSuccess) {
     return (
