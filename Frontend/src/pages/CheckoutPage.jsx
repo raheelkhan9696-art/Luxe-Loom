@@ -13,7 +13,7 @@ import axios from "axios";
 import { useCart } from "../context/cartContext"; 
 import apiPath from "../utils/apiPath";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
