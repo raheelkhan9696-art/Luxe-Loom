@@ -1,10 +1,14 @@
+/**
+ * Luxe & Loom API Registry
+ * Centralized endpoint manifest for all secure communications.
+ */
 const apiPath = {
   // --- USER & AUTHENTICATION ---
   AUTH: {
     REGISTER: "/api/auth/register",
     LOGIN: "/api/auth/login",
     PROFILE: "/api/auth/profile",
-    ALL_USERS: "/api/auth/all-users", // Added for admin user listing
+    ALL_USERS: "/api/auth/all-users", 
   },
 
   // --- CLIENT PERSONALIZATION ---
@@ -20,17 +24,15 @@ const apiPath = {
     GET_ALL: "/api/products",
     GET_BY_ID: (id) => `/api/products/${id}`,
     GET_BY_SLUG: (slug) => `/api/products/slug/${slug}`,
-    
   },
 
   // --- ORDERS ---
-  ORDERS: { // Changed from ORDER to ORDERS to match your component call
+  ORDERS: { 
     CREATE: "/api/orders",
-    GET_USER_ORDERS: "/api/orders/myorders", // Mapped from MY_ORDERS to match component
+    GET_USER_ORDERS: "/api/orders/myorders",
     GET_BY_ID: (id) => `/api/orders/${id}`,
     DELETE_ORDER: (id) => `/api/orders/${id}`,
-      GET_ALL: "/api/orders/all", // Added for admin order listing
-
+    GET_ALL: "/api/orders/all", 
   },
 
   // --- PAYMENTS ---

@@ -2,11 +2,25 @@ import axios from 'axios';
 
 /**
  * Luxe & Loom API Instance
- * Configured for secure, interceptor-based communication
+ * Configured for secure, interceptor-based communication with Render fail-safes.
  */
+
+// 1. Defensive URL Handling
+const getBaseURL = () => {
+    const envURL = import.meta.env.VITE_API_URL;
+    
+    // Fallback directly to your Render URL if the env variable is missing/undefined
+    const activeURL = envURL && envURL !== 'undefined' 
+        ? envURL 
+        : "https://luxe-loom.onrender.com";
+
+    // Ensure no trailing slash to prevent double slashes (e.g. .com//api)
+    return activeURL.replace(/\/$/, "");
+};
+
 const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
-    timeout: 15000, // 15 seconds timeout for premium responsiveness
+    baseURL: getBaseURL(),
+    timeout: 15000, 
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -14,13 +28,18 @@ const axiosInstance = axios.create({
 });
 
 // --- REQUEST INTERCEPTOR ---
-// Automatically injects the JWT token into every request
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+        
+        // Debugging log for development (You can remove this later)
+        if (import.meta.env.DEV) {
+            console.log(`[Luxe & Loom API] Outgoing: ${config.method.toUpperCase()} ${config.baseURL}${config.url}`);
+        }
+        
         return config;
     },
     (error) => {
@@ -29,37 +48,33 @@ axiosInstance.interceptors.request.use(
 );
 
 // --- RESPONSE INTERCEPTOR ---
-// Handles global status codes (401, 403, 500)
 axiosInstance.interceptors.response.use(
     (response) => {
-        // You can return response.data here to simplify your components,
-        // but returning the full response is standard for flexibility.
         return response;
     },
     (error) => {
         const { response } = error;
 
         if (response) {
-            // 401: Unauthorized (Token expired or missing)
+            // 401: Unauthorized
             if (response.status === 401) {
-                console.warn('Session expired. Evicting user to login...');
+                console.warn('Vault Access Expired. Resetting credentials...');
                 localStorage.removeItem('token');
                 localStorage.removeItem('userInfo');
                 
-                // Avoid infinite redirect loops if already on login
                 if (!window.location.pathname.includes('/auth/login')) {
                     window.location.href = '/auth/login';
                 }
             }
 
-            // 403: Forbidden (User is not an admin)
+            // 403: Forbidden
             if (response.status === 403) {
-                console.error('Access Denied: Administrative privileges required.');
+                console.error('Administrative privileges required for this sector.');
             }
         }
 
-        // Return a simplified error message for your UI
-        const message = response?.data?.message || error.message || "An unexpected error occurred";
+        // Always return a clean error string to prevent component crashes
+        const message = response?.data?.message || error.message || "An unexpected error occurred in the Loom";
         return Promise.reject(message);
     }
 );
