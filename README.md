@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://via.placeholder.com/800x200/080808/FACD15?text=LUXE+%26+LOOM" alt="Luxe & Loom Banner" width="100%" />
+  <img src="assets/banner.png" alt="Luxe & Loom Banner" width="100%" />
   
   <br />
   
