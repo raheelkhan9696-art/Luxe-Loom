@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, Loader2, ShieldCheck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+// 1. IMPORT YOUR CUSTOM INSTANCE INSTEAD OF STANDARD AXIOS
+import axiosInstance from "../../utils/axiosInstance"; 
 import apiPath from "../../utils/apiPath";
-
-const BASE_URL = import.meta.env.VITE_API_URL;
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -18,7 +17,7 @@ const Signup = () => {
     password: "",
   });
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -30,12 +29,11 @@ const handleSubmit = async (e) => {
     };
 
     try {
-      const response = await axios.post(`${BASE_URL}${apiPath.AUTH.REGISTER}`, payload);
+      // 2. USE axiosInstance.post (No need for BASE_URL here, it's automatic)
+      const response = await axiosInstance.post(apiPath.AUTH.REGISTER, payload);
 
-      // FIX: Check for EITHER success boolean OR the existence of a token
+      // Check for success or token
       if (response.data.success || response.data.token) {
-        
-        // 1. Store Credentials
         if (response.data.token) {
           localStorage.setItem("token", response.data.token);
         }
@@ -44,13 +42,11 @@ const handleSubmit = async (e) => {
           localStorage.setItem("user", JSON.stringify(response.data.user));
         }
 
-        // 2. Navigation Logic
         const cartData = localStorage.getItem("cart");
         const cartItems = cartData ? JSON.parse(cartData) : [];
         
         console.log("Signup successful, navigating...");
 
-        // Use a small timeout to ensure localStorage is written before navigation
         setTimeout(() => {
           if (cartItems.length > 0) {
             navigate("/checkout");
@@ -62,9 +58,9 @@ const handleSubmit = async (e) => {
         setError("Account created, but session could not be established. Please login.");
       }
     } catch (err) {
-      const serverMessage = err.response?.data?.message || err.response?.data?.error;
-      setError(serverMessage || "Registry request failed.");
-      console.error("Navigation Blocked - Server Error:", err.response?.data);
+      // 3. Use the clean error message from your axiosInstance interceptor
+      setError(err || "Registry request failed.");
+      console.error("Signup Error:", err);
     } finally {
       setLoading(false);
     }
@@ -76,6 +72,7 @@ const handleSubmit = async (e) => {
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-md mx-auto"
     >
+      {/* ... (Keep all your existing Framer Motion and UI code the same) ... */}
       <div className="flex items-center gap-3 mb-10">
         <div className="h-[1px] w-8 bg-yellow-500/50" />
         <span className="text-[10px] tracking-[0.5em] uppercase text-zinc-500 font-light">

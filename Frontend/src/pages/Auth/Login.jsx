@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import { ArrowRight, Eye, EyeOff, ShieldCheck, Loader2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import axios from "axios";
+// 1. IMPORT YOUR CUSTOM INSTANCE INSTEAD OF STANDARD AXIOS
+import axiosInstance from "../../utils/axiosInstance";
 import apiPath from "../../utils/apiPath";
-
-const BASE_URL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,13 +13,14 @@ const Login = () => {
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({ email: "", password: "" });
 
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     try {
-      const response = await axios.post(`${BASE_URL}${apiPath.AUTH.LOGIN}`, {
+      // 2. USE axiosInstance.post (Base URL is handled automatically)
+      const response = await axiosInstance.post(apiPath.AUTH.LOGIN, {
         email: formData.email,
         password: formData.password
       });
@@ -32,35 +32,32 @@ const handleSubmit = async (e) => {
           localStorage.setItem("user", JSON.stringify(response.data.user));
         }
 
-        // 2. Debugging & Smart Navigation
+        // 2. Smart Navigation logic
         const rawCart = localStorage.getItem("cart");
         let cartItems = [];
         
         try {
-          // Parse only if rawCart actually contains something
           cartItems = rawCart ? JSON.parse(rawCart) : [];
         } catch (parseError) {
           console.error("Cart parse error:", parseError);
           cartItems = [];
         }
 
-        console.log("Current Cart Items Count:", cartItems.length);
+        console.log("Access Granted. Synchronizing vault...");
 
         // Small timeout ensures storage is synced before redirect
         setTimeout(() => {
           if (Array.isArray(cartItems) && cartItems.length > 0) {
-            console.log("Redirecting to Checkout...");
             navigate("/checkout");
           } else {
-            console.log("Cart empty, redirecting to Home...");
             navigate("/home");
           }
         }, 150);
       }
     } catch (err) {
-      const serverMessage = err.response?.data?.message || "System error. Connection refused.";
-      setError(serverMessage);
-      console.error("Login Failure:", err.response?.data);
+      // 3. Use the clean error string provided by your axiosInstance interceptor
+      setError(err || "System error. Connection refused.");
+      console.error("Login Failure:", err);
     } finally {
       setLoading(false);
     }
