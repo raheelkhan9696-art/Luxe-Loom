@@ -5,7 +5,7 @@ import axios from 'axios';
  * Configured for secure, interceptor-based communication
  */
 const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+    baseURL: import.meta.env.VITE_API_URL,
     timeout: 15000, // 15 seconds timeout for premium responsiveness
     headers: {
         'Content-Type': 'application/json',

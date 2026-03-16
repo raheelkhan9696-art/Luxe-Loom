@@ -11,38 +11,31 @@ import productRoutes from "./src/routes/productroutes.js";
 import uploadRoutes from "./src/routes/uploadroutes.js";
 import clientroutes from "./src/routes/clientroutes.js";
 
-const app = express();
-// Render sets the PORT environment variable automatically
-const port = process.env.PORT || 3000; 
+// ... other app.use calls
 
+const app = express();
+const port = process.env.PORT || 3000;
 connectDB();
 
-app.use(express.json());
+app.use(express.json()); // Parses incoming JSON requests
 app.use(express.urlencoded({ extended: true }));
-
-// Optimized CORS for production
 app.use(
   cors({
-    origin: "*", // For development. In production, consider replacing with your frontend URL
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    credentials: true,
+    origin: "*",
   }),
 );
 
-// Health Check (Crucial for Render to know your app is "Alive")
-app.get("/health", (req, res) => {
-  res.status(200).send("Vault is Secure");
-});
-
 // --- MOUNT ROUTES ---
 app.use("/api/admin", adminRoutes);
-app.use("/api/auth", userRoutes);
-app.use("/api/orders", orderRoutes);
+app.use("/api/auth", userRoutes); // Login, Signup, Profile
+app.use("/api/orders", orderRoutes); // Order creation, tracking
 app.use("/api/products", productRoutes);
 app.use("/api/upload", uploadRoutes);
-app.use("/api/client", clientroutes);
+app.use("/api/client", clientroutes); // Client-facing product browsing, cart, checkout
+
 
 // --- GLOBAL ERROR HANDLER ---
+
 app.use((err, req, res, next) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   res.status(statusCode).json({
@@ -51,8 +44,8 @@ app.use((err, req, res, next) => {
   });
 });
 
+
 // --- START SERVER ---
-// IMPORTANT: Bind to '0.0.0.0' for Render
-app.listen(port, "0.0.0.0", () => {
-  console.log(`Server is running on port ${port}`);
+app.listen(port, () => {
+  console.log(`server is running on port ${port}`);
 });
