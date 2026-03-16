@@ -12,8 +12,7 @@ export const addOrderItems = async (req, res) => {
       paymentMethod,
       itemsPrice,
       taxPrice,      // Ensure this is extracted
-      shippingPrice,
-      phoneno,       // Ensure this is extracted
+      shippingPrice,      // Ensure this is extracted
       totalPrice,
     } = req.body;
 
