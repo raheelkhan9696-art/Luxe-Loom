@@ -9,11 +9,11 @@ import {
   Package, 
   AlertCircle 
 } from "lucide-react";
-import axios from "axios";
-import { useCart } from "../context/cartContext"; 
+// 1. USE YOUR CENTRALIZED INSTANCE
+import axiosInstance from "../utils/axiosInstance";
 import apiPath from "../utils/apiPath";
-
-const BASE_URL = import.meta.env.VITE_API_URL;
+import { useCart } from "../context/cartContext"; 
+import { toast } from "react-hot-toast";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -29,19 +29,20 @@ const CheckoutPage = () => {
     address: "",
     city: "",
     postalCode: "",
+    phoneno: "",
     country: "Pakistan",
     paymentMethod: "COD"
   });
 
+  // Prefill email if logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        // Note: Prefilling email depends on if your JWT payload includes it
         if (payload.email) setFormData(prev => ({ ...prev, email: payload.email }));
       } catch (e) {
-        console.error("Token parse error");
+        console.error("Session identity check failed");
       }
     }
   }, []);
@@ -58,23 +59,13 @@ const CheckoutPage = () => {
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Session expired. Please login to continue.");
-        return navigate("/login");
-      }
-
-      // Extract User ID from Token
-      const tokenPayload = JSON.parse(atob(token.split('.')[1]));
-      const userId = tokenPayload.id;
-
-      // Aligning payload with 'addOrderItems' backend controller
+      // 2. CLEAN PAYLOAD MAPPING
       const orderData = {
         orderItems: cartItems.map(item => ({
-          _id: item._id, // Backend maps this to 'product'
+          product: item._id, // Ensure your backend expects 'product' for the ID
           name: item.name,
           qty: Number(item.quantity) || 1,
-          image: item.mainImage || (item.image && item.image[0]) || "https://placehold.co/200x300?text=Luxe",
+          image: item.mainImage || (item.image && item.image[0]) || "",
           price: Number(item.price)
         })),
         shippingAddress: {
@@ -82,7 +73,7 @@ const CheckoutPage = () => {
           city: formData.city,
           postalCode: formData.postalCode,
           country: formData.country,
-          phoneno: formData.phoneno || 0 // Ensure this is included
+          phoneno: formData.phoneno
         },
         paymentMethod: "Cash on Delivery",
         itemsPrice: Number(subtotal),
@@ -90,24 +81,20 @@ const CheckoutPage = () => {
         totalPrice: Number(total),
       };
 
-      const cleanUrl = `${BASE_URL.replace(/\/$/, "")}/${apiPath.ORDERS.CREATE.replace(/^\//, "")}`;
+      // 3. SIMPLIFIED POST REQUEST
+      // axiosInstance handles Base URL and Authorization Header
+      const response = await axiosInstance.post(apiPath.ORDERS.CREATE, orderData);
 
-      const response = await axios.post(cleanUrl, orderData, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json" 
-        }
-      });
-
-      // Backend returns 201 Created for new orders
       if (response.status === 201 || response.data._id) {
         setOrderSuccess(true);
         clearCart(); 
         setTimeout(() => navigate("/orders"), 3000);
       }
     } catch (err) {
-      console.error("Order Failed:", err.response?.data || err.message);
-      alert(err.response?.data?.message || "Failed to finalize acquisition.");
+      // 4. IMPROVED ERROR HANDLING
+      const errorMsg = err.response?.data?.message || err || "Finalization failed";
+      toast.error(errorMsg);
+      console.error("Protocol Error:", err);
     } finally {
       setLoading(false);
     }
@@ -127,26 +114,27 @@ const CheckoutPage = () => {
 
   return (
     <div className="min-h-screen bg-[#050505] text-zinc-300 flex flex-col lg:flex-row">
+      {/* LEFT: FORM SECTION */}
       <div className="flex-1 px-6 md:px-20 py-20 lg:border-r border-white/5">
         <div className="max-w-xl ml-auto">
           <header className="mb-12">
             <nav className="flex items-center gap-2 text-[10px] tracking-widest uppercase text-zinc-600 mb-8">
-              <Link to="/cart" className="hover:text-yellow-400">Cart</Link>
-              <ChevronLeft size={10} className="rotate-180" />
+              <Link to="/cart" className="hover:text-yellow-400 transition-colors">Cart</Link>
+              <ChevronLeft size={10} className="rotate-180 opacity-30" />
               <span className="text-white font-bold tracking-[0.2em]">Shipping Registry</span>
             </nav>
           </header>
 
           {cartItems.length === 0 ? (
-            <div className="py-20 text-center border border-dashed border-white/10">
-              <AlertCircle size={32} className="mx-auto mb-4 text-zinc-700" />
+            <div className="py-20 text-center border border-dashed border-white/10 rounded-sm">
+              <AlertCircle size={32} className="mx-auto mb-4 text-zinc-800" />
               <p className="text-[10px] uppercase tracking-widest text-zinc-500">Your manifest is empty</p>
-              <Link to="/collection" className="text-yellow-400 text-[10px] uppercase mt-4 inline-block underline">Return to Shop</Link>
+              <Link to="/collection" className="text-yellow-400 text-[10px] uppercase mt-4 inline-block underline underline-offset-4">Return to Vault</Link>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-10">
               <section className="space-y-4">
-                <h2 className="text-[10px] font-bold tracking-[0.4em] uppercase text-white opacity-50">Contact Identity</h2>
+                <h2 className="text-[10px] font-bold tracking-[0.4em] uppercase text-white opacity-40">Contact Identity</h2>
                 <input 
                   name="email" required value={formData.email} onChange={handleInputChange} 
                   type="email" placeholder="EMAIL ADDRESS" 
@@ -155,33 +143,38 @@ const CheckoutPage = () => {
               </section>
 
               <section className="space-y-4">
-                <h2 className="text-[10px] font-bold tracking-[0.4em] uppercase text-white opacity-50">Shipping Destination</h2>
+                <h2 className="text-[10px] font-bold tracking-[0.4em] uppercase text-white opacity-40">Shipping Destination</h2>
                 <div className="grid grid-cols-2 gap-4">
-                  <input name="firstName" required onChange={handleInputChange} type="text" placeholder="FIRST NAME" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none" />
-                  <input name="lastName" required onChange={handleInputChange} type="text" placeholder="LAST NAME" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none" />
-                  <input name="address" required onChange={handleInputChange} type="text" placeholder="STREET ADDRESS" className="col-span-2 bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none" />
-                  <input name="city" required onChange={handleInputChange} type="text" placeholder="CITY" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none" />
-                  <input name="postalCode" required onChange={handleInputChange} type="text" placeholder="POSTAL CODE" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none" />
-                  <input name="phoneno" required onChange={handleInputChange} type="text" placeholder="PHONE NUMBER" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none" />
+                  <input name="firstName" required onChange={handleInputChange} type="text" placeholder="FIRST NAME" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
+                  <input name="lastName" required onChange={handleInputChange} type="text" placeholder="LAST NAME" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
+                  <input name="address" required onChange={handleInputChange} type="text" placeholder="STREET ADDRESS" className="col-span-2 bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
+                  <input name="city" required onChange={handleInputChange} type="text" placeholder="CITY" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
+                  <input name="postalCode" required onChange={handleInputChange} type="text" placeholder="POSTAL CODE" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
+                  <input name="phoneno" required onChange={handleInputChange} type="text" placeholder="PHONE NUMBER" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
                 </div>
               </section>
 
-              <section className="bg-white/[0.02] border border-white/5 p-6 flex items-center justify-between">
+              <section className="bg-white/[0.02] border border-white/5 p-6 flex items-center justify-between rounded-sm">
                  <div className="flex items-center gap-4">
                    <Package size={18} className="text-yellow-400" />
                    <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-white">Cash on Delivery (COD)</span>
                  </div>
-                 <div className="w-4 h-4 rounded-full border-4 border-yellow-400 bg-black" />
+                 <div className="w-4 h-4 rounded-full border-4 border-yellow-400 bg-black shadow-[0_0_10px_rgba(250,204,21,0.2)]" />
               </section>
 
-              <button type="submit" disabled={loading} className="w-full bg-white text-black py-6 text-[10px] font-bold tracking-[0.5em] uppercase hover:bg-yellow-400 transition-all duration-500 disabled:opacity-20">
-                {loading ? <Loader2 className="animate-spin mx-auto" size={18} /> : "Finalize Order"}
+              <button 
+                type="submit" 
+                disabled={loading} 
+                className="w-full bg-white text-black py-6 text-[10px] font-bold tracking-[0.5em] uppercase hover:bg-yellow-400 transition-all duration-500 disabled:opacity-20 active:scale-[0.98]"
+              >
+                {loading ? <Loader2 className="animate-spin mx-auto" size={18} /> : "Finalize Acquisition"}
               </button>
             </form>
           )}
         </div>
       </div>
 
+      {/* RIGHT: SUMMARY SECTION */}
       <div className="w-full lg:w-[480px] bg-[#080808] px-6 md:px-12 py-20">
         <div className="max-w-sm mx-auto">
           <h2 className="text-[10px] font-bold tracking-[0.4em] uppercase text-white mb-10 pb-4 border-b border-white/5">Order Summary</h2>
@@ -196,13 +189,13 @@ const CheckoutPage = () => {
                       alt={item.name} 
                     />
                   </div>
-                  <span className="absolute -top-2 -right-2 w-5 h-5 bg-white text-black text-[10px] flex items-center justify-center rounded-full font-bold">
+                  <span className="absolute -top-2 -right-2 w-5 h-5 bg-white text-black text-[10px] flex items-center justify-center rounded-full font-bold shadow-xl">
                     {item.quantity}
                   </span>
                 </div>
                 <div className="flex-1">
                   <h3 className="text-[10px] font-bold text-white uppercase tracking-widest">{item.name}</h3>
-                  <p className="text-[9px] text-zinc-600 mt-1 uppercase tracking-widest">Size: {item.selectedSize || "N/A"}</p>
+                  <p className="text-[9px] text-zinc-600 mt-1 uppercase tracking-widest">Variant: {item.selectedSize || "Standard"}</p>
                 </div>
                 <span className="text-xs font-mono text-white">Rs {item.price?.toLocaleString()}</span>
               </div>
@@ -226,7 +219,7 @@ const CheckoutPage = () => {
           
           <div className="mt-16 flex items-center gap-4 opacity-30 hover:opacity-100 transition-opacity">
             <ShieldCheck size={20} className="text-yellow-500" />
-            <p className="text-[8px] uppercase tracking-[0.3em] leading-tight font-light">
+            <p className="text-[8px] uppercase tracking-[0.3em] leading-tight font-light text-zinc-400">
               Secured Acquisition Protocol <br/> All Transactions Encrypted
             </p>
           </div>
