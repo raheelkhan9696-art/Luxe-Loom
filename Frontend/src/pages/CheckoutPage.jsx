@@ -9,7 +9,6 @@ import {
   Package, 
   AlertCircle 
 } from "lucide-react";
-// 1. USE YOUR CENTRALIZED INSTANCE
 import axiosInstance from "../utils/axiosInstance";
 import apiPath from "../utils/apiPath";
 import { useCart } from "../context/cartContext"; 
@@ -21,6 +20,7 @@ const CheckoutPage = () => {
   
   const [loading, setLoading] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -31,18 +31,21 @@ const CheckoutPage = () => {
     postalCode: "",
     phoneno: "",
     country: "Pakistan",
-    paymentMethod: "COD"
+    paymentMethod: "Cash on Delivery"
   });
 
-  // Prefill email if logged in
+  // Extract user info from token on mount
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
+        // Check for 'id' or '_id' based on your JWT structure
+        const userId = payload.id || payload._id;
+        if (userId) setCurrentUserId(userId);
         if (payload.email) setFormData(prev => ({ ...prev, email: payload.email }));
       } catch (e) {
-        console.error("Session identity check failed");
+        console.error("Session identity check failed", e);
       }
     }
   }, []);
@@ -52,68 +55,63 @@ const CheckoutPage = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  if (!cartItems || cartItems.length === 0) return;
-  
-  setLoading(true);
-
-  try {
-    const orderData = {
-      // 1. Required field: user ID from token
-      user: currentUserId, 
-      
-      // 2. Map items to match schema exactly
-      orderItems: cartItems.map(item => ({
-        product: item._id, 
-        name: item.name,
-        qty: Number(item.quantity) || 1,
-        image: item.mainImage || (item.image && item.image[0]) || "",
-        price: Number(item.price)
-      })),
-
-      // 3. Match the Enum: 'Cash on Delivery' (NOT 'COD')
-      paymentMethod: "Cash on Delivery",
-
-      // 4. Shipping Address with Number conversion for phoneno
-      shippingAddress: {
-        address: formData.address,
-        city: formData.city,
-        postalCode: String(formData.postalCode),
-        country: formData.country,
-        phoneno: Number(formData.phoneno), // CRITICAL: Schema expects Number
-      },
-
-      // 5. Financials (Ensure taxPrice is included as it is 'required: true')
-      itemsPrice: Number(subtotal),
-      shippingPrice: Number(shipping),
-      taxPrice: 0, // Even if 0, it must be sent if 'required' is true
-      totalPrice: Number(total),
-
-      // These have defaults in your schema, so we can omit them:
-      // status, isPaid, isDelivered
-    };
-
-    const response = await axiosInstance.post(apiPath.ORDERS.CREATE, orderData);
-
-    if (response.status === 201 || response.data._id) {
-      setOrderSuccess(true);
-      clearCart(); 
-      setTimeout(() => navigate("/orders"), 3000);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!cartItems || cartItems.length === 0) {
+      toast.error("Your cart is empty.");
+      return;
     }
- } catch (err) {
-  // 1. Log the full error to see the structure
-  console.error("Full Protocol Error:", err);
 
-  // 2. Safe extraction of the message
-  const errorMsg = err.response?.data?.message 
-    || err.response?.data 
-    || err.message 
-    || "Finalization failed";
+    if (!currentUserId) {
+      toast.error("Authentication required. Please log in.");
+      return;
+    }
+    
+    setLoading(true);
 
-  toast.error(errorMsg);
-}
-};
+    try {
+      const orderData = {
+        user: currentUserId, 
+        orderItems: cartItems.map(item => ({
+          product: item._id, 
+          name: item.name,
+          qty: Number(item.quantity) || 1,
+          image: item.mainImage || (item.image && item.image[0]) || "",
+          price: Number(item.price)
+        })),
+        shippingAddress: {
+          address: formData.address,
+          city: formData.city,
+          postalCode: String(formData.postalCode),
+          country: formData.country,
+          phoneno: Number(formData.phoneno), // Cast to Number per Schema
+        },
+        paymentMethod: "Cash on Delivery",
+        itemsPrice: Number(subtotal),
+        shippingPrice: Number(shipping),
+        taxPrice: 0, 
+        totalPrice: Number(total),
+      };
+
+      const response = await axiosInstance.post(apiPath.ORDERS.CREATE, orderData);
+
+      if (response.status === 201 || response.data._id) {
+        setOrderSuccess(true);
+        clearCart(); 
+        setTimeout(() => navigate("/orders"), 3000);
+      }
+    } catch (err) {
+      console.error("Full Protocol Error:", err);
+      const errorMsg = err.response?.data?.message 
+        || err.response?.data 
+        || err.message 
+        || "Finalization failed";
+      toast.error(errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (orderSuccess) {
     return (
@@ -160,12 +158,12 @@ const handleSubmit = async (e) => {
               <section className="space-y-4">
                 <h2 className="text-[10px] font-bold tracking-[0.4em] uppercase text-white opacity-40">Shipping Destination</h2>
                 <div className="grid grid-cols-2 gap-4">
-                  <input name="firstName" required onChange={handleInputChange} type="text" placeholder="FIRST NAME" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
-                  <input name="lastName" required onChange={handleInputChange} type="text" placeholder="LAST NAME" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
-                  <input name="address" required onChange={handleInputChange} type="text" placeholder="STREET ADDRESS" className="col-span-2 bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
-                  <input name="city" required onChange={handleInputChange} type="text" placeholder="CITY" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
-                  <input name="postalCode" required onChange={handleInputChange} type="text" placeholder="POSTAL CODE" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
-                  <input name="phoneno" required onChange={handleInputChange} type="text" placeholder="PHONE NUMBER" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
+                  <input name="firstName" value={formData.firstName} required onChange={handleInputChange} type="text" placeholder="FIRST NAME" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
+                  <input name="lastName" value={formData.lastName} required onChange={handleInputChange} type="text" placeholder="LAST NAME" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
+                  <input name="address" value={formData.address} required onChange={handleInputChange} type="text" placeholder="STREET ADDRESS" className="col-span-2 bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
+                  <input name="city" value={formData.city} required onChange={handleInputChange} type="text" placeholder="CITY" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
+                  <input name="postalCode" value={formData.postalCode} required onChange={handleInputChange} type="text" placeholder="POSTAL CODE" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
+                  <input name="phoneno" value={formData.phoneno} required onChange={handleInputChange} type="text" placeholder="PHONE NUMBER" className="bg-white/5 border border-white/10 px-5 py-4 text-xs outline-none focus:border-white/30 transition-colors" />
                 </div>
               </section>
 
