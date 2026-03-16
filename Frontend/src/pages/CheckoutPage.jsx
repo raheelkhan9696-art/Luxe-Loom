@@ -54,64 +54,59 @@ const CheckoutPage = () => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!cartItems || cartItems.length === 0) return;
+  if (!currentUserId) {
+    toast.error("Session expired. Please log in again.");
+    return;
+  }
+  
+  setLoading(true);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!cartItems || cartItems.length === 0) {
-      toast.error("Your cart is empty.");
-      return;
+  try {
+    const orderData = {
+      orderItems: cartItems.map(item => ({
+        product: item._id, // Backend maps this to 'product'
+        name: item.name,
+        qty: Number(item.quantity) || 1,
+        image: item.mainImage || (item.image && item.image[0]) || "",
+        price: Number(item.price)
+      })),
+      shippingAddress: {
+        address: formData.address,
+        city: formData.city,
+        postalCode: String(formData.postalCode),
+        country: formData.country,
+        phoneno: String(formData.phoneno), // Sent as String to match fixed Schema
+      },
+      paymentMethod: "Cash on Delivery",
+      itemsPrice: Number(subtotal),
+      shippingPrice: Number(shipping),
+      taxPrice: 0, 
+      totalPrice: Number(total),
+    };
+
+    // Note: The 'user' ID is handled by your backend 'protect' middleware 
+    // using the token, but we include it in the body for extra safety if your
+    // controller requires it.
+    orderData.user = currentUserId;
+
+    const response = await axiosInstance.post(apiPath.ORDERS.CREATE, orderData);
+
+    if (response.status === 201 || response.data._id) {
+      setOrderSuccess(true);
+      clearCart(); 
+      setTimeout(() => navigate("/orders"), 3000);
     }
-
-    if (!currentUserId) {
-      toast.error("Authentication required. Please log in.");
-      return;
-    }
-    
-    setLoading(true);
-
-    try {
-      const orderData = {
-        user: currentUserId, 
-        orderItems: cartItems.map(item => ({
-          product: item._id, 
-          name: item.name,
-          qty: Number(item.quantity) || 1,
-          image: item.mainImage || (item.image && item.image[0]) || "",
-          price: Number(item.price)
-        })),
-        shippingAddress: {
-          address: formData.address,
-          city: formData.city,
-          postalCode: String(formData.postalCode),
-          country: formData.country,
-          phoneno: Number(formData.phoneno), // Cast to Number per Schema
-        },
-        paymentMethod: "Cash on Delivery",
-        itemsPrice: Number(subtotal),
-        shippingPrice: Number(shipping),
-        taxPrice: 0, 
-        totalPrice: Number(total),
-      };
-
-      const response = await axiosInstance.post(apiPath.ORDERS.CREATE, orderData);
-
-      if (response.status === 201 || response.data._id) {
-        setOrderSuccess(true);
-        clearCart(); 
-        setTimeout(() => navigate("/orders"), 3000);
-      }
-    } catch (err) {
-      console.error("Full Protocol Error:", err);
-      const errorMsg = err.response?.data?.message 
-        || err.response?.data 
-        || err.message 
-        || "Finalization failed";
-      toast.error(errorMsg);
-    } finally {
-      setLoading(false);
-    }
-  };
+  } catch (err) {
+    const errorMsg = err.response?.data?.message || "Acquisition protocol failed";
+    toast.error(errorMsg);
+    console.error("Debug Error:", err.response?.data);
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (orderSuccess) {
     return (

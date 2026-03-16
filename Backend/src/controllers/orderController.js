@@ -11,8 +11,8 @@ export const addOrderItems = async (req, res) => {
       shippingAddress,
       paymentMethod,
       itemsPrice,
-      taxPrice,      // Ensure this is extracted
-      shippingPrice,      // Ensure this is extracted
+      taxPrice,
+      shippingPrice,
       totalPrice,
     } = req.body;
 
@@ -20,26 +20,30 @@ export const addOrderItems = async (req, res) => {
       return res.status(400).json({ message: 'No items in collection' });
     }
 
+    // Logic: Map the incoming items and ensure user is attached from the auth middleware
     const order = new Order({
       orderItems: orderItems.map((x) => ({
         ...x,
-        product: x._id,
+        product: x.product, // The frontend already sends this as 'product'
         _id: undefined,
       })),
       user: req.user._id,
-      shippingAddress,
+      shippingAddress: {
+        ...shippingAddress,
+        // phoneno is already inside shippingAddress from the frontend
+      },
       paymentMethod: paymentMethod || 'Cash on Delivery',
       itemsPrice,
-      taxPrice: taxPrice || 0, // Fallback to 0 if not provided
+      taxPrice: taxPrice || 0,
       shippingPrice: shippingPrice || 0,
       totalPrice,
-      phoneno, // Add phone number to order schema
     });
 
     const createdOrder = await order.save();
     res.status(201).json(createdOrder);
   } catch (error) {
-    res.status(400).json({ message: 'Order failed', error: error.message });
+    // This will now send the EXACT reason (e.g., Validation Error) to the frontend
+    res.status(400).json({ message: error.message });
   }
 };
 
