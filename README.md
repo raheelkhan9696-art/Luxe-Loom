@@ -1,5 +1,4 @@
 <div align="center">
-  <img src="assets/banner.png" alt="Luxe & Loom Banner" width="100%" />
   
   <br />
   
