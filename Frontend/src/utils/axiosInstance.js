@@ -2,25 +2,24 @@ import axios from 'axios';
 
 /**
  * Luxe & Loom API Instance
- * Configured for secure, interceptor-based communication with Render fail-safes.
+ * Fail-safe configuration for Render & Vercel environments.
  */
 
-// 1. Defensive URL Handling
 const getBaseURL = () => {
     const envURL = import.meta.env.VITE_API_URL;
     
-    // Fallback directly to your Render URL if the env variable is missing/undefined
-    const activeURL = envURL && envURL !== 'undefined' 
+    // Explicitly check for the string "undefined" which often happens in Vercel builds
+    const activeURL = (envURL && envURL !== 'undefined') 
         ? envURL 
         : "https://luxe-loom.onrender.com";
 
-    // Ensure no trailing slash to prevent double slashes (e.g. .com//api)
+    // Strip trailing slash to keep paths clean
     return activeURL.replace(/\/$/, "");
 };
 
 const axiosInstance = axios.create({
     baseURL: getBaseURL(),
-    timeout: 15000, 
+    timeout: 15000,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -34,47 +33,33 @@ axiosInstance.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
-        
-        // Debugging log for development (You can remove this later)
-        if (import.meta.env.DEV) {
-            console.log(`[Luxe & Loom API] Outgoing: ${config.method.toUpperCase()} ${config.baseURL}${config.url}`);
+
+        // Sanity Check: Ensure URL starts with a single slash
+        if (config.url && !config.url.startsWith('/')) {
+            config.url = `/${config.url}`;
         }
-        
+
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
 // --- RESPONSE INTERCEPTOR ---
 axiosInstance.interceptors.response.use(
-    (response) => {
-        return response;
-    },
+    (response) => response,
     (error) => {
         const { response } = error;
 
-        if (response) {
-            // 401: Unauthorized
-            if (response.status === 401) {
-                console.warn('Vault Access Expired. Resetting credentials...');
-                localStorage.removeItem('token');
-                localStorage.removeItem('userInfo');
-                
-                if (!window.location.pathname.includes('/auth/login')) {
-                    window.location.href = '/auth/login';
-                }
-            }
-
-            // 403: Forbidden
-            if (response.status === 403) {
-                console.error('Administrative privileges required for this sector.');
+        if (response?.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userInfo');
+            if (!window.location.pathname.includes('/auth/login')) {
+                window.location.href = '/auth/login';
             }
         }
 
-        // Always return a clean error string to prevent component crashes
-        const message = response?.data?.message || error.message || "An unexpected error occurred in the Loom";
+        // Return a clear error string for the UI
+        const message = response?.data?.message || error.message || "Connection to the Loom failed.";
         return Promise.reject(message);
     }
 );
