@@ -84,7 +84,7 @@ const ShopPage = () => {
           <div>
             <h3 className="text-sm font-bold tracking-widest uppercase border-b border-zinc-800 pb-4 mb-6">Categories</h3>
             <ul className="space-y-4">
-              {["All", "Watches", "Jewellery", "Accessories","High Jewelry","Archival","Caps"].map((cat) => (
+              {["All", "Watches", "Jewelry", "Accessories","High Jewelry","Archival","Caps"].map((cat) => (
                 <li 
                   key={cat} 
                   onClick={() => setSelectedCategory(cat)}
