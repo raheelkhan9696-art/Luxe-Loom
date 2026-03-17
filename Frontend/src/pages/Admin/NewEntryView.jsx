@@ -15,7 +15,7 @@ const NewEntryPage = () => {
     description: "",
     price: "",
     category: "Watches",
-    material: "18K Gold & Steel",
+    material: "Sterling Silver",
     countInStock: "",
   });
 
@@ -69,7 +69,7 @@ const NewEntryPage = () => {
       toast.success("Masterpiece synchronized with Archive");
       
       // Reset form
-      setFormData({ name: "", description: "", price: "", category: "Watches", material: "18K Gold & Steel", countInStock: "" });
+      setFormData({ name: "", description: "", price: "", category: "Watches", material: "Sterling Silver", countInStock: "" });
       setMainFile(null);
       setGalleryFiles([]);
     } catch (err) {
@@ -196,7 +196,9 @@ const NewEntryPage = () => {
                   >
                     <option value="Watches" className="bg-black">Watches</option>
                     <option value="High Jewelry" className="bg-black">High Jewelry</option>
-                    <option value="Timepieces" className="bg-black">Timepieces</option>
+                    <option value="Accessories" className="bg-black">Accessories</option>
+                    <option value="Jewelry" className="bg-black">Jewelry</option>
+                    <option value="Archival" className="bg-black">Archival</option>
                   </select>
                 </div>
                 <div className="space-y-2">

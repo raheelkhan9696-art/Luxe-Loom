@@ -76,10 +76,12 @@ const HomePage = () => {
 
             {/* Refined Button - Removed the heavy gradient for a cleaner look */}
             <div className="hero-sub flex flex-col sm:flex-row gap-4">
+             <Link to="/shop">
               <button className="group relative px-10 py-4 bg-white text-black text-[10px] tracking-[0.3em] font-bold uppercase overflow-hidden transition-all duration-300">
                 <span className="relative z-10">Shop Collection</span>
                 <div className="absolute inset-0 bg-yellow-400 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
               </button>
+              </Link>
 
               <Link to="/about">
                 <button className="px-10 py-4 xs:py-10 border border-yellow-500 text-white text-[10px] tracking-[0.3em] uppercase hover:bg-white hover:text-black transition-all duration-300">
