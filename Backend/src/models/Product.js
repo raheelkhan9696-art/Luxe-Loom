@@ -28,7 +28,7 @@ const ProductSchema = new mongoose.Schema({
     // FIX: Updated Enum to allow your React state values or remove enum for total flexibility
     enum: [
       '18K Gold', '24K Gold', 'Platinum', 'Sterling Silver', 
-      'Stainless Steel', 'Gold / Steel', '18K Gold & Steel'
+      'Stainless Steel', 'Gold / Steel', '18K Gold & Steel','Leather', 'Silk', 'Satin', 'Canvas', 'Nylon', 'Rubber', 'Other'
     ],
     required: true 
   },
