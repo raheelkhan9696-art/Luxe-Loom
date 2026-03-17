@@ -21,7 +21,7 @@ const ProductSchema = new mongoose.Schema({
   category: { 
     type: String, 
     required: true,
-    enum: ['Watches', 'Jewelry', 'Accessories', 'Archival', 'High Jewelry'] // Added High Jewelry for consistency
+    enum: ['Watches', 'Jewelry', 'Accessories', 'Archival', 'High Jewelry',"Caps"] // Added High Jewelry for consistency
   },
   material: { 
     type: String, 

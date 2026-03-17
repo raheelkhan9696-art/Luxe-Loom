@@ -199,6 +199,7 @@ const NewEntryPage = () => {
                     <option value="Accessories" className="bg-black">Accessories</option>
                     <option value="Jewelry" className="bg-black">Jewelry</option>
                     <option value="Archival" className="bg-black">Archival</option>
+                    <option value="Caps" className="bg-black">Caps</option>
                   </select>
                 </div>
                 <div className="space-y-2">
