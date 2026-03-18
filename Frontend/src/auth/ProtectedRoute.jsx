@@ -51,7 +51,11 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
   if (!user) {
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
-  
+
+  if(user){
+    return <Navigate to="/cart" replace />;
+  }
+
 
   // 3. Authorization Check
   if (adminOnly && !isAdmin) {
