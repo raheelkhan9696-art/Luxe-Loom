@@ -6,7 +6,7 @@
   <p><b>The Definitive Acquisition Protocol for Luxury Horology & Fine Jewelry</b></p>
 
   <div>
-    <img src="https://img.shields.io/badge/Version-1.0.0-gold?style=for-the-badge" />
+    <img src="https://img.shields.io/badge/Version-1.0.0-gold?style=for-the-badge" /> 
     <img src="https://img.shields.io/badge/Stack-MERN-black?style=for-the-badge&logo=mongodb" />
     <img src="https://img.shields.io/badge/UI-Glassmorphic-purple?style=for-the-badge" />
   </div>
